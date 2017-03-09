@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Manage exports.
+ * Export WordPress content to a WXR file.
  *
  * ## EXAMPLES
  *
