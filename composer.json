@@ -1,0 +1,33 @@
+{
+    "name": "wp-cli/export-command",
+    "description": "Manage exports.",
+    "type": "wp-cli-package",
+    "homepage": "https://github.com/wp-cli/export-command",
+    "support": {
+        "issues": "https://github.com/wp-cli/export-command/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniel Bachhuber",
+            "email": "daniel@runcommand.io",
+            "homepage": "https://runcommand.io"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {"": "src/"},
+        "files": [ "export-command.php" ]
+    },
+    "require": {
+        "nb/oxymel": "~0.1.0"
+    },
+    "require-dev": {
+        "behat/behat": "~2.5"
+    },
+    "extra": {
+        "commands": [
+            "export"
+        ]
+    }
+}

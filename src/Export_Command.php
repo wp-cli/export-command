@@ -171,7 +171,7 @@ class Export_Command extends WP_CLI_Command {
 			define( 'YB_IN_BYTES', 1024 * ZB_IN_BYTES );
 		}
 
-		require WP_CLI_ROOT . '/php/export/functions.export.php';
+		require dirname( dirname( __FILE__ ) ) . '/functions.php';
 	}
 
 	private function validate_args( $args ) {
@@ -387,5 +387,3 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 }
-
-WP_CLI::add_command( 'export', 'Export_Command' );
