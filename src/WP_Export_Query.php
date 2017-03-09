@@ -370,8 +370,3 @@ class WP_Export_Query {
 	}
 }
 
-class WP_Export_Exception extends RuntimeException {
-}
-
-class WP_Export_Term_Exception extends RuntimeException {
-}
