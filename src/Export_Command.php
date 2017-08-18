@@ -39,7 +39,7 @@ class Export_Command extends WP_CLI_Command {
 	 * : Don't include comments in the WXR export file.
 	 *
 	 * [--max_file_size=<MB>]
-	 * : A single export file should have this many megabytes.
+	 * : A single export file should have this many megabytes. -1 for unlimited.
 	 * ---
 	 * default: 15
 	 * ---
@@ -169,6 +169,7 @@ class Export_Command extends WP_CLI_Command {
 			define( 'EB_IN_BYTES', 1024 * PB_IN_BYTES );
 			define( 'ZB_IN_BYTES', 1024 * EB_IN_BYTES );
 			define( 'YB_IN_BYTES', 1024 * ZB_IN_BYTES );
+			define( 'WP_EXPORT_NO_SPLIT', -1 );
 		}
 
 		require dirname( dirname( __FILE__ ) ) . '/functions.php';
@@ -382,7 +383,7 @@ class Export_Command extends WP_CLI_Command {
 			return false;
 		}
 
-		$this->max_file_size = $size;
+		$this->max_file_size = $size <= 0 ? WP_EXPORT_NO_SPLIT : $size;
 
 		return true;
 	}
