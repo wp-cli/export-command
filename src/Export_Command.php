@@ -208,8 +208,7 @@ class Export_Command extends WP_CLI_Command {
 			}
 		}
 
-		// called last to check possible mutual-exclusion with previous arguments
-		if (isset($args['stdout'])) {
+		if ( $args['stdout'] ) {
 			$this->wxr_path = NULL;
 			$this->stdout = TRUE;
 		}

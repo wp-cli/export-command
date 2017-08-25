@@ -479,3 +479,16 @@ Feature: Export content.
       """
       0
       """
+
+  Scenario: Export a site to stdout
+    Given a WP install
+    And I run `wp comment generate --post_id=1 --count=1`
+    When I run `wp export --stdout`
+    Then STDOUT should not contain:
+      """
+      Writing to file
+      """
+    And STDOUT should contain:
+      """
+      <generator>
+      """
