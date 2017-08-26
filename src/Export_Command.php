@@ -34,7 +34,7 @@ class Export_Command extends WP_CLI_Command {
 	 * [--dir=<dirname>]
 	 * : Full path to directory where WXR export files should be stored. Defaults
 	 * to current working directory.
-
+	 *
 	 * [--stdout]
 	 * : Output the whole XML using standard output (incompatible with --dir=)
 	 *
@@ -125,7 +125,6 @@ class Export_Command extends WP_CLI_Command {
 
 		if (! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
 			WP_CLI::error( "--stdout and --dir cannot be used together." );
-			WP_CLI::halt(1);
 		}
 
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
@@ -150,7 +149,7 @@ class Export_Command extends WP_CLI_Command {
 				wp_export( array(
 					'filters' => $this->export_args,
 					'writer' => 'WP_Export_Stdout_Writer',
-					'writer_args' => array( )
+					'writer_args' => NULL
 				) );
 			} else {
 				wp_export( array(

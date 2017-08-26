@@ -2,9 +2,8 @@
 
 class WP_Export_Stdout_Writer extends WP_Export_Base_Writer {
 
-	function __construct( $formatter, $writer_args = array() ) {
+	function __construct( $formatter, $writer_args ) {
 		parent::__construct( $formatter );
-		//TODO: check if args are not missing
 		$this->before_posts_xml = $this->formatter->before_posts();
 		$this->after_posts_xml = $this->formatter->after_posts();
 	}
