@@ -157,6 +157,8 @@ COMMENT;
 	}
 
 	public function post( $post ) {
+		static $entity_table;
+		$entity_table = preg_quote(implode(array_keys(get_html_translation_table(HTML_ENTITIES, ENT_XML1|ENT_QUOTES))));
 		$oxymel = new WP_Export_Oxymel;
 		$GLOBALS['wp_query']->in_the_loop = true;
 		$GLOBALS['post'] = $post;
@@ -188,12 +190,18 @@ COMMENT;
 			$oxymel
 			->category( array( 'domain' => $term->taxonomy, 'nicename' => $term->slug  ) )->contains->cdata( $term->name )->end;
 		}
+
 		foreach( $post->meta as $meta ) {
-			$oxymel
-			->tag( 'wp:postmeta' )->contains
-				->tag( 'wp:meta_key', $meta->meta_key )
-				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
-				->end;
+			if ( preg_match('/[' . $entity_table . ']/', $meta->meta_value ) ) {
+				$oxymel
+					->tag( 'wp:postmeta' )->contains
+					->tag( 'wp:meta_key', $meta->meta_key )
+					->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
+					->end;
+			}
+			else {
+				$oxymel->tag( 'wp:postmeta', array('meta_key' => $meta->meta_key, 'meta_value' => $meta->meta_value ));
+			}
 		}
 		foreach( $post->comments as $comment ) {
 			$oxymel
