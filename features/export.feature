@@ -483,7 +483,13 @@ Feature: Export content.
   Scenario: Export a site to stdout
     Given a WP install
     And I run `wp comment generate --post_id=1 --count=1`
-    When I run `wp export --stdout`
+    And I run `wp plugin install wordpress-importer --activate`
+
+    When I run `wp export --stdout > export.xml`
+    Then STDOUT should be empty
+    And the return code should be 0
+
+    When I run `cat export.xml`
     Then STDOUT should not contain:
       """
       Writing to file
@@ -491,4 +497,28 @@ Feature: Export content.
     And STDOUT should contain:
       """
       <generator>
+      """
+
+    When I run `wp site empty --yes`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp comment list --format=count`
+    Then STDOUT should be:
+      """
+      0
+      """
+
+    When I run `wp import export.xml --authors=skip`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp comment list --format=count`
+    Then STDOUT should be:
+      """
+      2
       """
