@@ -481,6 +481,8 @@ Feature: Export content.
       """
 
   Scenario: Export spliting the dump
+    Given a WP install
+
     When I run `wp export --max_file_size=0.0001`
     Then STDOUT should contain:
       """
@@ -488,6 +490,8 @@ Feature: Export content.
       """
 
   Scenario: Export without spliting the dump
+    Given a WP install
+
     When I run `wp export --max_file_size=-1`
     Then STDOUT should contain:
       """
