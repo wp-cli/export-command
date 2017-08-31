@@ -383,7 +383,7 @@ class Export_Command extends WP_CLI_Command {
 			return false;
 		}
 
-		$this->max_file_size = $size <= 0 ? WP_EXPORT_NO_SPLIT : $size;
+		$this->max_file_size = $size == -1 ? WP_EXPORT_NO_SPLIT : $size;
 
 		return true;
 	}
