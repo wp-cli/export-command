@@ -115,7 +115,7 @@ class Export_Command extends WP_CLI_Command {
 			'end_date'          => NULL,
 			'post_type'         => NULL,
 			'post_type__not_in' => NULL,
-			'limit'             => -1,
+			'limit'             => NULL,
 			'author'            => NULL,
 			'category'          => NULL,
 			'post_status'       => NULL,
@@ -365,7 +365,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_limit( $num ) {
-		if ( !is_numeric( $num ) || $num <= 0) {
+		if ( ! is_null( $num ) && ( ! is_numeric( $num ) || $num <= 0) ) {
 			WP_CLI::warning( sprintf( "limit should be a positive integer.", $num ) );
 			return false;
 		}
