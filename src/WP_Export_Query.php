@@ -15,7 +15,7 @@ class WP_Export_Query {
 		'start_date' => null,
 		'end_date' => null,
 		'start_id' => null,
-		'limit' => -1,
+		'limit' => NULL,
 		'category' => null,
 	);
 
@@ -262,8 +262,12 @@ class WP_Export_Query {
 	}
 
 	private function limit() {
-		if ($this->filters['limit'] > 0) return "LIMIT {$this->filters['limit']}";
-		else return "";
+		if ( $this->filters['limit'] > 0 ) {
+			return "LIMIT {$this->filters['limit']}";
+		}
+		else {
+			return "";
+		}
 	}
 
 	private function attachments_for_specific_post_types( $post_ids ) {
