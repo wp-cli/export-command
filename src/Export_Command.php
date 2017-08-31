@@ -124,7 +124,7 @@ class Export_Command extends WP_CLI_Command {
 
 
 		if (! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
-			WP_CLI::error( "--stdout and --dir cannot be used together." );
+			WP_CLI::error( '--stdout and --dir cannot be used together.' );
 		}
 
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
