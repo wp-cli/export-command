@@ -414,20 +414,6 @@ Feature: Export content.
       0
       """
 
-    When I run `wp post generate --post_type=post --count=10`
-    And I run `wp post export --post_type=post --limit=1 --count | grep -cF '<wp:post_type>post</wp:post_type>'`
-    Then STDOUT should be:
-      """
-      1
-      """
-
-    When I run `wp post generate --post_type=post --count=10`
-    And I run `wp post export --limit=1 --count | grep -cP '\<wp:post_type\>(?!attachment).+\</wp:post_type\>'
-    Then STDOUT should be:
-      """
-      1
-      """
-
     When I run `wp import {EXPORT_FILE} --authors=skip`
     Then STDOUT should not be empty
 
@@ -435,6 +421,23 @@ Feature: Export content.
     Then STDOUT should be:
       """
       0
+      """
+
+  Scenario: Export posts using --limit
+    Given a WP install
+
+    When I run `wp post generate --post_type=post --count=10`
+    And I run `wp export --post_type=post --limit=1 && grep -cF '<wp:post_type>post</wp:post_type>' {EXPORT_FILE}`
+    Then STDOUT should be:
+      """
+      1
+      """
+
+    When I run `wp post generate --post_type=post --count=10`
+    And I run `wp export --limit=1 && grep -cP '\<wp:post_type\>(?!attachment).+\</wp:post_type\>' {EXPORT_FILE}`
+    Then STDOUT should be:
+      """
+      1
       """
 
   Scenario: Export a site with a custom filename format
