@@ -522,3 +522,12 @@ Feature: Export content.
       """
       2
       """
+
+  Scenario: Error when --stdout and --dir are both provided
+    Given a WP install
+
+    When I try `wp export --stdout --dir=foo`
+    Then STDERR should be:
+      """
+      Error: --stdout and --dir cannot be used together.
+      """
