@@ -9,7 +9,6 @@ class WP_Export_Stdout_Writer extends WP_Export_Base_Writer {
 	}
 
 	public function export() {
-		// WP_CLI\Utils\wp_clear_object_cache(); ?
 		fwrite( STDOUT, $this->before_posts_xml );
 		foreach( $this->formatter->posts() as $post_xml ) {
 			fwrite( STDOUT, $post_xml );
