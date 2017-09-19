@@ -35,6 +35,9 @@ class Export_Command extends WP_CLI_Command {
 	 * : Full path to directory where WXR export files should be stored. Defaults
 	 * to current working directory.
 	 *
+	 * [--stdout]
+	 * : Output the whole XML using standard output (incompatible with --dir=)
+	 *
 	 * [--skip_comments]
 	 * : Don't include comments in the WXR export file.
 	 *
@@ -104,6 +107,7 @@ class Export_Command extends WP_CLI_Command {
 	public function __invoke( $_, $assoc_args ) {
 		$defaults = array(
 			'dir'               => NULL,
+			'stdout'            => FALSE,
 			'start_date'        => NULL,
 			'end_date'          => NULL,
 			'post_type'         => NULL,
@@ -118,14 +122,22 @@ class Export_Command extends WP_CLI_Command {
 			'filename_format'   => '{site}.wordpress.{date}.{n}.xml',
 		);
 
+
+		if (! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
+			WP_CLI::error( '--stdout and --dir cannot be used together.' );
+		}
+
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
+
 		$this->validate_args( $assoc_args );
 
 		if ( !function_exists( 'wp_export' ) ) {
 			self::load_export_api();
 		}
 
-		WP_CLI::log( 'Starting export process...' );
+		if ( ! $this->stdout ) {
+			WP_CLI::log( 'Starting export process...' );
+		}
 
 		add_action( 'wp_export_new_file', function( $file_path ) {
 			WP_CLI::log( sprintf( "Writing to file %s", $file_path ) );
@@ -133,20 +145,30 @@ class Export_Command extends WP_CLI_Command {
 		} );
 
 		try {
-			wp_export( array(
-				'filters' => $this->export_args,
-				'writer' => 'WP_Export_Split_Files_Writer',
-				'writer_args' => array(
-					'max_file_size' => $this->max_file_size * MB_IN_BYTES,
-					'destination_directory' => $this->wxr_path,
-					'filename_template' => self::get_filename_template( $assoc_args['filename_format'] ),
-				)
-			) );
+			if ( $this->stdout ) {
+				wp_export( array(
+					'filters' => $this->export_args,
+					'writer' => 'WP_Export_Stdout_Writer',
+					'writer_args' => NULL
+				) );
+			} else {
+				wp_export( array(
+					'filters' => $this->export_args,
+					'writer' => 'WP_Export_Split_Files_Writer',
+					'writer_args' => array(
+						'max_file_size' => $this->max_file_size * MB_IN_BYTES,
+						'destination_directory' => $this->wxr_path,
+						'filename_template' => self::get_filename_template( $assoc_args['filename_format'] ),
+					)
+				) );
+			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
 
-		WP_CLI::success( 'All done with export.' );
+		if ( ! $this->stdout ) {
+			WP_CLI::success( 'All done with export.' );
+		}
 	}
 
 	private static function get_filename_template( $filename_format ) {
@@ -184,6 +206,11 @@ class Export_Command extends WP_CLI_Command {
 				if ( false === $result )
 					$has_errors = true;
 			}
+		}
+
+		if ( $args['stdout'] ) {
+			$this->wxr_path = NULL;
+			$this->stdout = TRUE;
 		}
 
 		if ( $has_errors ) {
