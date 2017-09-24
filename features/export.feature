@@ -423,6 +423,24 @@ Feature: Export content.
       0
       """
 
+  Scenario: Export posts using --max_num_posts
+    Given a WP install
+
+    When I run `wp post generate --post_type=post --count=10`
+    And I run `wp export --post_type=post --max_num_posts=1 --stdout | grep -cF '<wp:post_type>post</wp:post_type>'`
+    Then STDOUT should be:
+      """
+      1
+      """
+
+    When I run `wp post generate --post_type=post --count=10`
+    And I run `wp post generate --post_type=attachment --count=10`
+    And I run `wp export --max_num_posts=1 --stdout | grep -cP '\<wp:post_type\>(attachment|post)\</wp:post_type\>'`
+    Then STDOUT should be:
+      """
+      1
+      """
+
   Scenario: Export a site with a custom filename format
     Given a WP install
 
