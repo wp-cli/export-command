@@ -72,6 +72,9 @@ class Export_Command extends WP_CLI_Command {
 	 * [--start_id=<pid>]
 	 * : Export only posts with IDs greater than or equal to this post ID.
 	 *
+	 * [--max_num_posts=<num>]
+	 * : Export no more than <num> posts (excluding attachments).
+	 *
 	 * [--author=<author>]
 	 * : Export only posts by this author. Can be either user login or user ID.
 	 *
@@ -112,6 +115,7 @@ class Export_Command extends WP_CLI_Command {
 			'end_date'          => NULL,
 			'post_type'         => NULL,
 			'post_type__not_in' => NULL,
+			'max_num_posts'     => NULL,
 			'author'            => NULL,
 			'category'          => NULL,
 			'post_status'       => NULL,
@@ -357,6 +361,17 @@ class Export_Command extends WP_CLI_Command {
 		}
 
 		$this->export_args['author'] = $hit;
+		return true;
+	}
+
+	private function check_max_num_posts( $num ) {
+		if ( ! is_null( $num ) && ( ! is_numeric( $num ) || $num <= 0) ) {
+			WP_CLI::warning( sprintf( "max_num_posts should be a positive integer.", $num ) );
+			return false;
+		}
+
+		$this->export_args['max_num_posts'] = (int)$num;
+
 		return true;
 	}
 
