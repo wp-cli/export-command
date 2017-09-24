@@ -423,11 +423,11 @@ Feature: Export content.
       0
       """
 
-  Scenario: Export posts using --limit
+  Scenario: Export posts using --max_num_posts
     Given a WP install
 
     When I run `wp post generate --post_type=post --count=10`
-    And I run `wp export --post_type=post --limit=1 --stdout | grep -cF '<wp:post_type>post</wp:post_type>'`
+    And I run `wp export --post_type=post --max_num_posts=1 --stdout | grep -cF '<wp:post_type>post</wp:post_type>'`
     Then STDOUT should be:
       """
       1
@@ -435,7 +435,7 @@ Feature: Export content.
 
     When I run `wp post generate --post_type=post --count=10`
     And I run `wp post generate --post_type=attachment --count=10`
-    And I run `wp export --limit=1 --stdout | grep -cP '\<wp:post_type\>(attachment|post)\</wp:post_type\>'`
+    And I run `wp export --max_num_posts=1 --stdout | grep -cP '\<wp:post_type\>(attachment|post)\</wp:post_type\>'`
     Then STDOUT should be:
       """
       1
