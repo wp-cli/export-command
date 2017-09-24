@@ -68,6 +68,10 @@ class Export_Command extends WP_CLI_Command {
 	 *
 	 * [--post__in=<pid>]
 	 * : Export all posts specified as a comma- or space-separated list of IDs.
+	 * Post's attachments won't be exported unless --with_attachments is specified.
+	 *
+	 * [--with_attachments]
+	 * : Force including attachments in case --post__in has been specified.
 	 *
 	 * [--start_id=<pid>]
 	 * : Export only posts with IDs greater than or equal to this post ID.
@@ -120,6 +124,7 @@ class Export_Command extends WP_CLI_Command {
 			'category'          => NULL,
 			'post_status'       => NULL,
 			'post__in'          => NULL,
+			'with_attachments'  => TRUE, // or FALSE if user requested some post__in
 			'start_id'          => NULL,
 			'skip_comments'     => NULL,
 			'max_file_size'     => 15,
@@ -129,6 +134,10 @@ class Export_Command extends WP_CLI_Command {
 
 		if (! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
 			WP_CLI::error( '--stdout and --dir cannot be used together.' );
+		}
+
+		if ( !empty( $assoc_args['post__in'] ) && empty( $assoc_args['with_attachments'] ) ) {
+			$defaults['with_attachments'] = FALSE;
 		}
 
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
@@ -309,13 +318,25 @@ class Export_Command extends WP_CLI_Command {
 			return true;
 
 		$separator = false !== stripos( $post__in, ' ' ) ? ' ' : ',';
-		$post__in = array_unique( array_map( 'intval', explode( $separator, $post__in ) ) );
+		$post__in = array_filter( array_unique( array_map( 'intval', explode( $separator, $post__in ) ) ) );
 		if ( empty( $post__in ) ) {
 			WP_CLI::warning( "post__in should be comma-separated post IDs." );
 			return false;
 		}
 		// New exporter uses a different argument.
 		$this->export_args['post_ids'] = $post__in;
+		return true;
+	}
+
+	private function check_with_attachments( $with ) {
+		if ( is_null( $with ) )
+			return true;
+
+		if ( (int) $with <> 0 && (int) $with <> 1 ) {
+			WP_CLI::warning( 'with_attachments needs to be 0 (no) or 1 (yes).' );
+			return false;
+		}
+		$this->export_args['with_attachments'] = ((int) $with) == 1 ;
 		return true;
 	}
 
