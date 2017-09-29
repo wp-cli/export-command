@@ -15,6 +15,7 @@ class WP_Export_Query {
 		'start_date' => null,
 		'end_date' => null,
 		'start_id' => null,
+		'max_num_posts' => NULL,
 		'category' => null,
 	);
 
@@ -154,7 +155,7 @@ class WP_Export_Query {
 		if ( $where ) $where = "WHERE $where";
 		$join = implode( ' ', array_filter( $this->joins ) );
 
-		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p $join $where" );
+		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p $join $where {$this->max_num_posts()}" );
 		$post_ids = array_merge( $post_ids, $this->attachments_for_specific_post_types( $post_ids ) );
 		return $post_ids;
 	}
@@ -258,6 +259,15 @@ class WP_Export_Query {
 		$this->category = $category;
 		$this->joins[] = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
 		$this->wheres[] = $wpdb->prepare( 'tr.term_taxonomy_id = %d', $category->term_taxonomy_id );
+	}
+
+	private function max_num_posts() {
+		if ( $this->filters['max_num_posts'] > 0 ) {
+			return "LIMIT {$this->filters['max_num_posts']}";
+		}
+		else {
+			return "";
+		}
 	}
 
 	private function attachments_for_specific_post_types( $post_ids ) {
