@@ -506,11 +506,11 @@ Feature: Export content.
       """
       001.xml
       """
-	And STDERR should be empty
+    And STDERR should be empty
 
   Scenario: Export without splitting the dump
     Given a WP install
-	# Make export file > 15MB so will split by default. Need to split into 4 * 4MB to stay below 10% of default redo log size of 48MB, otherwise get MySQL error.
+    # Make export file > 15MB so will split by default. Need to split into 4 * 4MB to stay below 10% of default redo log size of 48MB, otherwise get MySQL error.
     And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
     And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
     And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
@@ -525,7 +525,7 @@ Feature: Export content.
       """
       001.xml
       """
-	And STDERR should be empty
+    And STDERR should be empty
 
     When I run `wp export --max_file_size=0`
     Then STDOUT should contain:
@@ -536,7 +536,7 @@ Feature: Export content.
       """
       001.xml
       """
-	And STDERR should be empty
+    And STDERR should be empty
 
     When I run `wp export --max_file_size=-1`
     Then STDOUT should contain:
@@ -547,7 +547,7 @@ Feature: Export content.
       """
       001.xml
       """
-	And STDERR should be empty
+    And STDERR should be empty
 
   Scenario: Export a site to stdout
     Given a WP install
