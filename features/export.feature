@@ -498,6 +498,28 @@ Feature: Export content.
       0
       """
 
+  Scenario: Export spliting the dump
+    Given a WP install
+
+    When I run `wp export --max_file_size=0.0001`
+    Then STDOUT should contain:
+      """
+      001.xml
+      """
+
+  Scenario: Export without spliting the dump
+    Given a WP install
+
+    When I run `wp export --max_file_size=-1`
+    Then STDOUT should contain:
+      """
+      000.xml
+      """
+    And STDOUT should not contain:
+      """
+      001.xml
+      """
+
   Scenario: Export a site to stdout
     Given a WP install
     And I run `wp comment generate --post_id=1 --count=1`
