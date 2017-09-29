@@ -10,7 +10,7 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 ## Using
 
 ~~~
-wp export [--dir=<dirname>] [--skip_comments] [--max_file_size=<MB>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--start_id=<pid>] [--author=<author>] [--category=<name>] [--post_status=<status>] [--filename_format=<format>]
+wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name>] [--post_status=<status>] [--filename_format=<format>]
 ~~~
 
 Generates one or more WXR files containing authors, terms, posts,
@@ -22,6 +22,9 @@ comments, and attachments. WXR files do not include site configuration
 	[--dir=<dirname>]
 		Full path to directory where WXR export files should be stored. Defaults
 		to current working directory.
+
+	[--stdout]
+		Output the whole XML using standard output (incompatible with --dir=)
 
 	[--skip_comments]
 		Don't include comments in the WXR export file.
@@ -56,6 +59,9 @@ comments, and attachments. WXR files do not include site configuration
 
 	[--start_id=<pid>]
 		Export only posts with IDs greater than or equal to this post ID.
+
+	[--max_num_posts=<num>]
+		Export no more than <num> posts (excluding attachments).
 
 	[--author=<author>]
 		Export only posts by this author. Can be either user login or user ID.
