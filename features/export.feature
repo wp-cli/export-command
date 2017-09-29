@@ -498,7 +498,7 @@ Feature: Export content.
       0
       """
 
-  Scenario: Export spliting the dump
+  Scenario: Export splitting the dump
     Given a WP install
 
     When I run `wp export --max_file_size=0.0001`
@@ -506,9 +506,34 @@ Feature: Export content.
       """
       001.xml
       """
+	And STDERR should be empty
 
-  Scenario: Export without spliting the dump
+  Scenario: Export without splitting the dump
     Given a WP install
+	# Make export file > 15MB so will split by default.
+    And I run `wp db query "UPDATE wp_posts SET post_content = REPEAT( 'A', 16 * 1024 * 1024 ) WHERE ID = 1;"`
+
+    When I run `wp export`
+    Then STDOUT should contain:
+      """
+      000.xml
+      """
+    And STDOUT should contain:
+      """
+      001.xml
+      """
+	And STDERR should be empty
+
+    When I run `wp export --max_file_size=0`
+    Then STDOUT should contain:
+      """
+      000.xml
+      """
+    And STDOUT should contain:
+      """
+      001.xml
+      """
+	And STDERR should be empty
 
     When I run `wp export --max_file_size=-1`
     Then STDOUT should contain:
@@ -519,6 +544,7 @@ Feature: Export content.
       """
       001.xml
       """
+	And STDERR should be empty
 
   Scenario: Export a site to stdout
     Given a WP install
