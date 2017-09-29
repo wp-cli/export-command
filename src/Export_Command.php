@@ -1,5 +1,7 @@
 <?php
 
+define( 'WP_CLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
+
 /**
  * Export WordPress content to a WXR file.
  *
@@ -22,6 +24,10 @@ class Export_Command extends WP_CLI_Command {
 	*/
 	public $export_args = array();
 
+	private $stdout;
+	private $max_file_size;
+	private $wxr_path;
+
 	/**
 	 * Export WordPress content to a WXR file.
 	 *
@@ -42,7 +48,7 @@ class Export_Command extends WP_CLI_Command {
 	 * : Don't include comments in the WXR export file.
 	 *
 	 * [--max_file_size=<MB>]
-	 * : A single export file should have this many megabytes.
+	 * : A single export file should have this many megabytes. -1 for unlimited.
 	 * ---
 	 * default: 15
 	 * ---
@@ -160,7 +166,7 @@ class Export_Command extends WP_CLI_Command {
 					'filters' => $this->export_args,
 					'writer' => 'WP_Export_Split_Files_Writer',
 					'writer_args' => array(
-						'max_file_size' => $this->max_file_size * MB_IN_BYTES,
+						'max_file_size' => $this->max_file_size,
 						'destination_directory' => $this->wxr_path,
 						'filename_template' => self::get_filename_template( $assoc_args['filename_format'] ),
 					)
@@ -184,19 +190,6 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private static function load_export_api() {
-		if ( !defined( 'KB_IN_BYTES' ) ) {
-			// Constants for expressing human-readable data sizes
-			// in their respective number of bytes.
-			define( 'KB_IN_BYTES', 1024 );
-			define( 'MB_IN_BYTES', 1024 * KB_IN_BYTES );
-			define( 'GB_IN_BYTES', 1024 * MB_IN_BYTES );
-			define( 'TB_IN_BYTES', 1024 * GB_IN_BYTES );
-			define( 'PB_IN_BYTES', 1024 * TB_IN_BYTES );
-			define( 'EB_IN_BYTES', 1024 * PB_IN_BYTES );
-			define( 'ZB_IN_BYTES', 1024 * EB_IN_BYTES );
-			define( 'YB_IN_BYTES', 1024 * ZB_IN_BYTES );
-		}
-
 		require dirname( dirname( __FILE__ ) ) . '/functions.php';
 	}
 
