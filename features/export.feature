@@ -511,7 +511,10 @@ Feature: Export content.
   Scenario: Export without splitting the dump
     Given a WP install
 	# Make export file > 15MB so will split by default.
-    And I run `wp db query "UPDATE wp_posts SET post_content = REPEAT( 'A', 16 * 1024 * 1024 ) WHERE ID = 1;"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
 
     When I run `wp export`
     Then STDOUT should contain:
