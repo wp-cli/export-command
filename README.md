@@ -30,7 +30,7 @@ comments, and attachments. WXR files do not include site configuration
 		Don't include comments in the WXR export file.
 
 	[--max_file_size=<MB>]
-		A single export file should have this many megabytes.
+		A single export file should have this many megabytes. -1 for unlimited.
 		---
 		default: 15
 		---
