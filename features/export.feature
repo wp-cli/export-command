@@ -170,6 +170,15 @@ Feature: Export content.
     When I run `wp export --post__in={POST_ID}`
     And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:post_id>{ATTACHMENT_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:post_type>attachment</wp:post_type>
+      """
+
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
 
@@ -180,12 +189,6 @@ Feature: Export content.
     Then STDOUT should be:
       """
       1
-      """
-
-    When I run `wp post list --post_type=attachment --format=count`
-    Then STDOUT should be:
-      """
-      0
       """
 
     When I run `wp comment list --format=count`
@@ -643,12 +646,12 @@ Feature: Export content.
 
     When I run `wp post create --post_type=attachment --porcelain`
     Then STDOUT should be a number
-    And save STDOUT as {ATTACHMENT_ID}
+    And save STDOUT as {EXPORT_ATTACHMENT_ID}
 
-    When I run `wp post update {ATTACHMENT_ID} --post_parent={EXPORT_ATTACHMENT_POST_ID} --porcelain`
+    When I run `wp post update {EXPORT_ATTACHMENT_ID} --post_parent={EXPORT_ATTACHMENT_POST_ID} --porcelain`
     Then STDOUT should contain:
       """
-      Success: Updated post {ATTACHMENT_ID}
+      Success: Updated post {EXPORT_ATTACHMENT_ID}
       """
 
     When I run `wp post create --post_title='Post with attachment to ignore' --porcelain`
@@ -657,31 +660,45 @@ Feature: Export content.
 
     When I run `wp post create --post_type=attachment --porcelain`
     Then STDOUT should be a number
-    And save STDOUT as {ATTACHMENT_ID}
+    And save STDOUT as {IGNORE_ATTACHMENT_ID}
 
-    When I run `wp post update {ATTACHMENT_ID} --post_parent={IGNORE_ATTACHMENT_POST_ID} --porcelain`
+    When I run `wp post update {IGNORE_ATTACHMENT_ID} --post_parent={IGNORE_ATTACHMENT_POST_ID} --porcelain`
     Then STDOUT should contain:
       """
-      Success: Updated post {ATTACHMENT_ID}
+      Success: Updated post {IGNORE_ATTACHMENT_ID}
       """
-
-    When I run `wp export --post__in={EXPORT_ATTACHMENT_POST_ID} --with_attachments`
-    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
-
-    When I run `wp site empty --yes`
-    Then STDOUT should not be empty
-
-    When I run `wp import {EXPORT_FILE} --authors=skip`
-    Then STDOUT should not be empty
 
     When I run `wp post list --post_type=post --format=count`
     Then STDOUT should be:
       """
-      1
+      13
       """
 
     When I run `wp post list --post_type=attachment --format=count`
     Then STDOUT should be:
       """
-      1
+      2
+      """
+
+    When I run `wp export --post__in={EXPORT_ATTACHMENT_POST_ID} --with_attachments`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_id>{EXPORT_ATTACHMENT_POST_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_type>attachment</wp:post_type>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_id>{EXPORT_ATTACHMENT_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:post_id>{IGNORE_ATTACHMENT_POST_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:post_id>{IGNORE_ATTACHMENT_ID}</wp:post_id>
       """
