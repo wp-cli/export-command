@@ -1,6 +1,12 @@
 <?php
 
 class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
+	private $max_file_size;
+	private $destination_directory;
+	private $filename_template;
+	private $before_posts_xml;
+	private $after_posts_xml;
+
 	private $result = '';
 	private $f;
 	private $next_file_number = 0;
@@ -8,8 +14,20 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 
 	function __construct( $formatter, $writer_args = array() ) {
 		parent::__construct( $formatter );
+
+		if ( ! defined( 'MB_IN_BYTES' ) ) {
+			define( 'MB_IN_BYTES', 1024 * 1024 );
+		}
+
 		//TODO: check if args are not missing
-		$this->max_file_size = is_null( $writer_args['max_file_size'] ) ? 15 * MB_IN_BYTES : $writer_args['max_file_size'];
+		if ( is_null( $writer_args['max_file_size'] ) ) {
+			$this->max_file_size = 15 * MB_IN_BYTES;
+		} elseif ( WP_CLI_EXPORT_COMMAND_NO_SPLIT === $writer_args['max_file_size'] ) {
+			$this->max_file_size = WP_CLI_EXPORT_COMMAND_NO_SPLIT;
+		} else {
+			$this->max_file_size = $writer_args['max_file_size'] * MB_IN_BYTES;
+		}
+
 		$this->destination_directory = $writer_args['destination_directory'];
 		$this->filename_template = $writer_args['filename_template'];
 		$this->before_posts_xml = $this->formatter->before_posts();
@@ -19,7 +37,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	public function export() {
 		$this->start_new_file();
 		foreach( $this->formatter->posts() as $post_xml ) {
-			if ( $this->current_file_size + strlen( $post_xml ) > $this->max_file_size ) {
+			if ( WP_CLI_EXPORT_COMMAND_NO_SPLIT !== $this->max_file_size && $this->current_file_size + strlen( $post_xml ) > $this->max_file_size ) {
 				$this->start_new_file();
 			}
 			$this->write( $post_xml );
