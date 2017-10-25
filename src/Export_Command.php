@@ -150,6 +150,12 @@ class Export_Command extends WP_CLI_Command {
 
 		$this->validate_args( $assoc_args );
 
+		$this->export_args['with_attachments'] = WP_CLI\Utils\get_flag_value(
+			$assoc_args,
+			'with_attachments',
+			$defaults['with_attachments']
+		);
+
 		if ( !function_exists( 'wp_export' ) ) {
 			self::load_export_api();
 		}
@@ -318,18 +324,6 @@ class Export_Command extends WP_CLI_Command {
 		}
 		// New exporter uses a different argument.
 		$this->export_args['post_ids'] = $post__in;
-		return true;
-	}
-
-	private function check_with_attachments( $with ) {
-		if ( is_null( $with ) )
-			return true;
-
-		if ( (int) $with <> 0 && (int) $with <> 1 ) {
-			WP_CLI::warning( 'with_attachments needs to be 0 (no) or 1 (yes).' );
-			return false;
-		}
-		$this->export_args['with_attachments'] = ((int) $with) == 1 ;
 		return true;
 	}
 
