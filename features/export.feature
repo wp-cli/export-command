@@ -666,7 +666,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post__in={EXPORT_ATTACHMENT_POST_ID} --with_attachments`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
