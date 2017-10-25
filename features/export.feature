@@ -142,6 +142,20 @@ Feature: Export content.
       11
       """
 
+    When I run `wp post create --post_title='Post with attachment' --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {ATTACHMENT_POST_ID}
+
+    When I run `wp post create --post_type=attachment --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {ATTACHMENT_ID}
+
+    When I run `wp post update {ATTACHMENT_ID} --post_parent={ATTACHMENT_POST_ID} --porcelain`
+    Then STDOUT should contain:
+      """
+      Success: Updated post {ATTACHMENT_ID}
+      """
+
     When I run `wp post create --post_title='Test post' --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
@@ -166,6 +180,12 @@ Feature: Export content.
     Then STDOUT should be:
       """
       1
+      """
+
+    When I run `wp post list --post_type=attachment --format=count`
+    Then STDOUT should be:
+      """
+      0
       """
 
     When I run `wp comment list --format=count`
