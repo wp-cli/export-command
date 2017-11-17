@@ -17,24 +17,28 @@ Feature: Export content.
       """
       Warning: The post type wp-cli-party does not exist.
       """
+    And the return code should be 1
 
     When I try `wp export --author=invalid-author`
     Then STDERR should contain:
       """
       Warning: Could not find a matching author for invalid-author
       """
+    And the return code should be 1
 
     When I try `wp export --start_date=invalid-date`
     Then STDERR should contain:
       """
       Warning: The start_date invalid-date is invalid.
       """
+    And the return code should be 1
 
     When I try `wp export --end_date=invalid-date`
     Then STDERR should contain:
       """
       Warning: The end_date invalid-date is invalid.
       """
+    And the return code should be 1
 
   Scenario: Export with post_type and post_status argument
     Given a WP install
@@ -600,3 +604,4 @@ Feature: Export content.
       """
       Error: --stdout and --dir cannot be used together.
       """
+    And the return code should be 1
