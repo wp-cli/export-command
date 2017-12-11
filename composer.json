@@ -1,6 +1,6 @@
 {
     "name": "wp-cli/export-command",
-    "description": "Export WordPress content to a WXR file.",
+    "description": "Exports WordPress content to a WXR file.",
     "type": "wp-cli-package",
     "homepage": "https://github.com/wp-cli/export-command",
     "support": {
