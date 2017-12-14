@@ -432,7 +432,7 @@ Feature: Export content.
     And a count-instances.php file:
       """
       <?php
-      echo preg_match_all( '#<wp:post_type>' . $args[0] . '<\/wp:post_type>#', file_get_contents( 'php://stdin' ) );
+      echo preg_match_all( '#<wp:post_type>' . $args[0] . '<\/wp:post_type>#', file_get_contents( 'php://stdin' ), $matches );
       """
 
     When I run `wp post generate --post_type=post --count=10`
