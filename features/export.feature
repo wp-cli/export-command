@@ -429,9 +429,14 @@ Feature: Export content.
 
   Scenario: Export posts using --max_num_posts
     Given a WP install
+    And a count-instances.php file:
+      """
+      <?php
+      echo preg_match_all( '#<wp:post_type>' . $args[0] . '<\/wp:post_type>#', file_get_contents( 'php://stdin' ), $matches );
+      """
 
     When I run `wp post generate --post_type=post --count=10`
-    And I run `wp export --post_type=post --max_num_posts=1 --stdout | grep -cF '<wp:post_type>post</wp:post_type>'`
+    And I run `wp export --post_type=post --max_num_posts=1 --stdout | wp --skip-wordpress eval-file count-instances.php post`
     Then STDOUT should be:
       """
       1
@@ -439,10 +444,16 @@ Feature: Export content.
 
     When I run `wp post generate --post_type=post --count=10`
     And I run `wp post generate --post_type=attachment --count=10`
-    And I run `wp export --max_num_posts=1 --stdout | grep -cP '\<wp:post_type\>(attachment|post)\</wp:post_type\>'`
+    And I run `wp export --max_num_posts=1 --stdout | wp --skip-wordpress eval-file count-instances.php "(post|attachment)"`
     Then STDOUT should be:
       """
       1
+      """
+
+    When I run `wp export --max_num_posts=5 --stdout | wp --skip-wordpress eval-file count-instances.php "(post|attachment)"`
+    Then STDOUT should be:
+      """
+      5
       """
 
   Scenario: Export a site with a custom filename format
