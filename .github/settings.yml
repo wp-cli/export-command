@@ -1,6 +1,6 @@
 # Used by Probot Settings: https://probot.github.io/apps/settings/
 repository:
-  description: Export WordPress content to a WXR file.
+  description: Exports WordPress content to a WXR file.
 labels:
   - name: bug
     color: fc2929
