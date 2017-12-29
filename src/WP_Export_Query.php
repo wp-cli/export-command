@@ -141,6 +141,10 @@ class WP_Export_Query {
 	private function calculate_post_ids() {
 		global $wpdb;
 		if ( is_array( $this->filters['post_ids'] ) ) {
+			if ( $this->filters['with_attachments'] ) {
+				$attachment_post_ids = $this->include_attachment_ids( $this->filters['post_ids'] );
+				$this->filters['post_ids'] = array_merge( $this->filters['post_ids'], $attachment_post_ids );
+			}
 			return $this->filters['post_ids'];
 		}
 		$this->post_type_where();
@@ -156,7 +160,9 @@ class WP_Export_Query {
 		$join = implode( ' ', array_filter( $this->joins ) );
 
 		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p $join $where {$this->max_num_posts()}" );
-		$post_ids = array_merge( $post_ids, $this->attachments_for_specific_post_types( $post_ids ) );
+		if ( $this->filters['post_type'] ) {
+			$post_ids = array_merge( $post_ids, $this->include_attachment_ids( $post_ids ) );
+		}
 		return $post_ids;
 	}
 
@@ -189,6 +195,11 @@ class WP_Export_Query {
 			$this->wheres[] = 'p.post_type IS NULL';
 			return;
 		}
+
+		if ( $this->filters['with_attachments'] == FALSE && ( !$this->filters['post_type'] || !in_array( 'attachment', $this->filters['post_type'], TRUE ) ) ) {
+			unset( $post_types['attachment'] );
+		}
+
 		$this->wheres[] = _wp_export_build_IN_condition( 'p.post_type', $post_types );
 	}
 
@@ -270,9 +281,9 @@ class WP_Export_Query {
 		}
 	}
 
-	private function attachments_for_specific_post_types( $post_ids ) {
+	private function include_attachment_ids( $post_ids ) {
 		global $wpdb;
-		if ( !$this->filters['post_type'] ) {
+		if ( !$post_ids ) {
 			return array();
 		}
 		$attachment_ids = array();
