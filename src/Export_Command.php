@@ -3,7 +3,7 @@
 define( 'WP_CLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
 
 /**
- * Export WordPress content to a WXR file.
+ * Exports WordPress content to a WXR file.
  *
  * ## EXAMPLES
  *
@@ -29,7 +29,7 @@ class Export_Command extends WP_CLI_Command {
 	private $wxr_path;
 
 	/**
-	 * Export WordPress content to a WXR file.
+	 * Exports WordPress content to a WXR file.
 	 *
 	 * Generates one or more WXR files containing authors, terms, posts,
 	 * comments, and attachments. WXR files do not include site configuration
