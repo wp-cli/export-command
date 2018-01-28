@@ -10,7 +10,7 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 ## Using
 
 ~~~
-wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name>] [--post_status=<status>] [--filename_format=<format>]
+wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--with_attachments] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name>] [--post_status=<status>] [--filename_format=<format>]
 ~~~
 
 Generates one or more WXR files containing authors, terms, posts,
@@ -56,6 +56,10 @@ comments, and attachments. WXR files do not include site configuration
 
 	[--post__in=<pid>]
 		Export all posts specified as a comma- or space-separated list of IDs.
+		Post's attachments won't be exported unless --with_attachments is specified.
+
+	[--with_attachments]
+		Force including attachments in case --post__in has been specified.
 
 	[--start_id=<pid>]
 		Export only posts with IDs greater than or equal to this post ID.
