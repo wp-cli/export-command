@@ -392,13 +392,15 @@ Feature: Export content.
 
   Scenario: Exclude a specific post type from export
     Given a WP install
+    And I run `wp site empty --yes`
+    And I run `wp post create --post_title="Some page" --post_type=page`
     And I run `wp post generate --post_type=post --count=10`
     And I run `wp plugin install wordpress-importer --activate`
 
     When I run `wp post list --post_type=any --format=count`
     Then STDOUT should be:
       """
-      12
+      11
       """
 
     When I run `wp export --post_type__not_in=post`
