@@ -33,7 +33,7 @@ class WP_Export_Query {
 
 	public function __construct( $filters = array() ) {
 		$this->filters = wp_parse_args( $filters, self::$defaults );
-		$this->post_ids = $this->calculate_post_ids();
+		$this->post_ids = apply_filters( 'wxr_export_calculate_post_ids', $this->calculate_post_ids() );
 	}
 
 	public function post_ids() {
