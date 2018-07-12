@@ -130,7 +130,7 @@ class Export_Command extends WP_CLI_Command {
 			'category'          => NULL,
 			'post_status'       => NULL,
 			'post__in'          => NULL,
-			'with_attachments'  => TRUE, // or FALSE if user requested some post__in
+			'with_attachments'  => TRUE, // or FALSE if user requested some post__in or post_type
 			'start_id'          => NULL,
 			'skip_comments'     => NULL,
 			'max_file_size'     => 15,
@@ -142,7 +142,7 @@ class Export_Command extends WP_CLI_Command {
 			WP_CLI::error( '--stdout and --dir cannot be used together.' );
 		}
 
-		if ( !empty( $assoc_args['post__in'] ) && empty( $assoc_args['with_attachments'] ) ) {
+		if ( ( !empty( $assoc_args['post__in'] ) || !empty( $assoc_args['post_type'] ) && $assoc_args['post_type'] != 'any' ) && empty( $assoc_args['with_attachments'] ) ) {
 			$defaults['with_attachments'] = FALSE;
 		}
 
@@ -155,7 +155,7 @@ class Export_Command extends WP_CLI_Command {
 			'with_attachments',
 			$defaults['with_attachments']
 		);
-		$this->export_args['with_attachments'] = preg_match('/^(?:y|yes|1|true)$/i', (string)$this->export_args['with_attachments']); // nb: (string)TRUE === "1"
+		$this->export_args['with_attachments'] = (bool)preg_match('/^(?:y|yes|1|true)$/i', (string)$this->export_args['with_attachments']); // nb: (string)TRUE === "1"
 
 		if ( !function_exists( 'wp_export' ) ) {
 			self::load_export_api();
