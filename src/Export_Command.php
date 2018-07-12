@@ -155,6 +155,7 @@ class Export_Command extends WP_CLI_Command {
 			'with_attachments',
 			$defaults['with_attachments']
 		);
+		$this->export_args['with_attachments'] = preg_match('/^(?:y|yes|1|true)$/i', (string)$this->export_args['with_attachments']); // nb: (string)TRUE === "1"
 
 		if ( !function_exists( 'wp_export' ) ) {
 			self::load_export_api();
