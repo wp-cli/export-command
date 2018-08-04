@@ -23,11 +23,11 @@
         "files": [ "export-command.php" ]
     },
     "require": {
-        "nb/oxymel": "~0.1.0"
+        "nb/oxymel": "~0.1.0",
+        "wp-cli/wp-cli": "^2"
     },
     "require-dev": {
-        "behat/behat": "~2.5",
-        "wp-cli/wp-cli": "^1.5"
+        "wp-cli/wp-cli-tests": "^0"
     },
     "extra": {
         "branch-alias": {
@@ -36,6 +36,19 @@
         "bundled": true,
         "commands": [
             "export"
+        ]
+    },
+    "scripts": {
+        "lint": "run-linter-tests",
+        "phpcs": "run-phpcs-tests",
+        "phpunit": "run-php-unit-tests",
+        "behat": "run-behat-tests",
+        "prepare-tests": "install-package-tests",
+        "test": [
+            "@lint",
+            "@phpcs",
+            "@phpunit",
+            "@behat"
         ]
     }
 }
