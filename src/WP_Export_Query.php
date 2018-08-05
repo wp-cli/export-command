@@ -160,7 +160,7 @@ class WP_Export_Query {
 		$join = implode( ' ', array_filter( $this->joins ) );
 
 		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p $join $where {$this->max_num_posts()}" );
-		if ( $this->filters['post_type'] ) {
+		if ( $this->filters['post_type'] && $this->filters['with_attachments'] ) {
 			$post_ids = array_merge( $post_ids, $this->include_attachment_ids( $post_ids ) );
 		}
 		return $post_ids;
@@ -196,7 +196,7 @@ class WP_Export_Query {
 			return;
 		}
 
-		if ( $this->filters['with_attachments'] == FALSE && ( !$this->filters['post_type'] || !in_array( 'attachment', $this->filters['post_type'], TRUE ) ) ) {
+		if ( $this->filters['with_attachments'] == FALSE && !in_array( 'attachment', $this->filters['post_type'], TRUE ) ) {
 			unset( $post_types['attachment'] );
 		}
 
