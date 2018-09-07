@@ -88,6 +88,10 @@ class WP_Export_Query {
 		return $categories;
 	}
 
+	public function custom_taxonomies() {
+		return get_taxonomies( array( '_builtin' => false ), 'objects' );
+	}
+
 	public function tags() {
 		if ( $this->filters['post_type'] ) {
 			return array();

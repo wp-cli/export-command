@@ -23,6 +23,7 @@ class WP_Export_WXR_Formatter {
 		$before_posts_xml .= $this->site_metadata();
 		$before_posts_xml .= $this->authors();
 		$before_posts_xml .= $this->categories();
+		$before_posts_xml .= $this->custom_taxonomies();
 		$before_posts_xml .= $this->tags();
 		$before_posts_xml .= $this->nav_menu_terms();
 		$before_posts_xml .= $this->custom_taxonomies_terms();
@@ -122,6 +123,19 @@ COMMENT;
 				->tag( 'wp:category_parent', $category->parent_slug )
 				->optional_cdata( 'wp:cat_name', $category->name )
 				->optional_cdata( 'wp:category_description', $category->description )
+				->end;
+		}
+		return $oxymel->to_string();
+	}
+
+	public function custom_taxonomies() {
+		$oxymel = new WP_Export_Oxymel;
+		$custom_taxonomies = $this->export->custom_taxonomies();
+		foreach( $custom_taxonomies as $taxonomy ) {
+			$oxymel->tag( 'wp:category' )->contains
+				->tag( 'wp:category_nicename', $taxonomy->name )
+				->optional_cdata( 'wp:cat_name', $taxonomy->label )
+				->optional_cdata( 'wp:category_description', $taxonomy->description )
 				->end;
 		}
 		return $oxymel->to_string();
