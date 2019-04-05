@@ -235,6 +235,9 @@ class Export_Command extends WP_CLI_Command {
 		} elseif ( !is_dir( $path ) ) {
 			WP_CLI::error( sprintf( "The directory '%s' does not exist.", $path ) );
 			return false;
+		} elseif ( ! is_writable( $path ) ) {
+			WP_CLI::error( sprintf( "The directory '%s' is not writable.", $path ) );
+			return false;
 		}
 
 		$this->wxr_path = trailingslashit( $path );
