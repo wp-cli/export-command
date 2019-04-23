@@ -16,7 +16,7 @@ class WP_Export_Oxymel extends Oxymel {
 	}
 
 	public function cdata( $text ) {
-		if ( !seems_utf8( $text ) ) {
+		if ( ! seems_utf8( $text ) ) {
 			$text = utf8_encode( $text );
 		}
 		return parent::cdata( $text );
