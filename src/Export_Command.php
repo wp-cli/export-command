@@ -1,6 +1,8 @@
 <?php
 
-define( 'WP_CLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
+use WP_CLI\Utils;
+
+define( 'WPCLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
 
 /**
  * Exports WordPress content to a WXR file.
@@ -22,7 +24,7 @@ class Export_Command extends WP_CLI_Command {
 	*
 	* @var array
 	*/
-	public $export_args = array();
+	public $export_args = [];
 
 	private $stdout;
 	private $max_file_size;
@@ -118,7 +120,7 @@ class Export_Command extends WP_CLI_Command {
 	 *     Success: All done with export.
 	 */
 	public function __invoke( $_, $assoc_args ) {
-		$defaults = array(
+		$defaults = [
 			'dir'               => null,
 			'stdout'            => false,
 			'start_date'        => null,
@@ -135,7 +137,7 @@ class Export_Command extends WP_CLI_Command {
 			'skip_comments'     => null,
 			'max_file_size'     => 15,
 			'filename_format'   => '{site}.wordpress.{date}.{n}.xml',
-		);
+		];
 
 		if ( ! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
 			WP_CLI::error( '--stdout and --dir cannot be used together.' );
@@ -149,7 +151,7 @@ class Export_Command extends WP_CLI_Command {
 
 		$this->validate_args( $assoc_args );
 
-		$this->export_args['with_attachments'] = WP_CLI\Utils\get_flag_value(
+		$this->export_args['with_attachments'] = Utils\get_flag_value(
 			$assoc_args,
 			'with_attachments',
 			$defaults['with_attachments']
@@ -167,30 +169,30 @@ class Export_Command extends WP_CLI_Command {
 			'wp_export_new_file',
 			function( $file_path ) {
 				WP_CLI::log( sprintf( 'Writing to file %s', $file_path ) );
-				WP_CLI\Utils\wp_clear_object_cache();
+				Utils\wp_clear_object_cache();
 			}
 		);
 
 		try {
 			if ( $this->stdout ) {
 				wp_export(
-					array(
+					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_Stdout_Writer',
 						'writer_args' => null,
-					)
+					]
 				);
 			} else {
 				wp_export(
-					array(
+					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_Split_Files_Writer',
-						'writer_args' => array(
+						'writer_args' => [
 							'max_file_size'         => $this->max_file_size,
 							'destination_directory' => $this->wxr_path,
 							'filename_template'     => self::get_filename_template( $assoc_args['filename_format'] ),
-						),
-					)
+						],
+					]
 				);
 			}
 		} catch ( Exception $e ) {
@@ -207,7 +209,7 @@ class Export_Command extends WP_CLI_Command {
 		if ( empty( $sitename ) ) {
 			$sitename = 'site';
 		}
-		return str_replace( array( '{site}', '{date}', '{n}' ), array( $sitename, date( 'Y-m-d' ), '%03d' ), $filename_format );
+		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format );
 	}
 
 	private static function load_export_api() {
@@ -218,8 +220,8 @@ class Export_Command extends WP_CLI_Command {
 		$has_errors = false;
 
 		foreach ( $args as $key => $value ) {
-			if ( is_callable( array( $this, 'check_' . $key ) ) ) {
-				$result = call_user_func( array( $this, 'check_' . $key ), $value );
+			if ( is_callable( [ $this, 'check_' . $key ] ) ) {
+				$result = call_user_func( [ $this, 'check_' . $key ], $value );
 				if ( false === $result ) {
 					$has_errors = true;
 				}
@@ -253,7 +255,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_start_date( $date ) {
-		if ( is_null( $date ) ) {
+		if ( null === $date ) {
 			return true;
 		}
 
@@ -267,7 +269,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_end_date( $date ) {
-		if ( is_null( $date ) ) {
+		if ( null === $date ) {
 			return true;
 		}
 
@@ -281,7 +283,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_post_type( $post_type ) {
-		if ( is_null( $post_type ) || 'any' === $post_type ) {
+		if ( null === $post_type || 'any' === $post_type ) {
 			return true;
 		}
 
@@ -289,7 +291,7 @@ class Export_Command extends WP_CLI_Command {
 		$post_types = get_post_types();
 
 		foreach ( $post_type as $type ) {
-			if ( ! in_array( $type, $post_types ) ) {
+			if ( ! in_array( $type, $post_types, true ) ) {
 				WP_CLI::warning(
 					sprintf(
 						'The post type %s does not exist. Choose "any" or any of these existing post types instead: %s',
@@ -305,16 +307,16 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_post_type__not_in( $post_type ) {
-		if ( is_null( $post_type ) ) {
+		if ( null === $post_type ) {
 			return true;
 		}
 
 		$post_type  = array_unique( array_filter( explode( ',', $post_type ) ) );
 		$post_types = get_post_types();
 
-		$keep_post_types = array();
+		$keep_post_types = [];
 		foreach ( $post_type as $type ) {
-			if ( ! in_array( $type, $post_types ) ) {
+			if ( ! in_array( $type, $post_types, true ) ) {
 				WP_CLI::warning(
 					sprintf(
 						'The post type %s does not exist. Use any of these existing post types instead: %s',
@@ -330,7 +332,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_post__in( $post__in ) {
-		if ( is_null( $post__in ) ) {
+		if ( null === $post__in ) {
 			return true;
 		}
 
@@ -346,7 +348,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_start_id( $start_id ) {
-		if ( is_null( $start_id ) ) {
+		if ( null === $start_id ) {
 			return true;
 		}
 
@@ -354,7 +356,7 @@ class Export_Command extends WP_CLI_Command {
 
 		// Post IDs must be greater than 0.
 		if ( 0 >= $start_id ) {
-			WP_CLI::warning( sprintf( __( 'Invalid start ID: %d' ), $start_id ) );
+			WP_CLI::warning( "Invalid start ID: {$start_id}" );
 			return false;
 		}
 
@@ -363,11 +365,12 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_author( $author ) {
-		if ( is_null( $author ) ) {
+		if ( null === $author ) {
 			return true;
 		}
 
-		$authors = get_users_of_blog();
+		// phpcs:ignore WordPress.WP.DeprecatedFunctions.get_users_of_blogFound -- Fallback.
+		$authors = function_exists( 'get_users' ) ? get_users() : get_users_of_blog();
 		if ( empty( $authors ) || is_wp_error( $authors ) ) {
 			WP_CLI::warning( sprintf( 'Could not find any authors in this blog.' ) );
 			return false;
@@ -377,12 +380,12 @@ class Export_Command extends WP_CLI_Command {
 			if ( $hit ) {
 				break;
 			}
-			if ( (int) $author == $user->ID || $author == $user->user_login ) {
+			if ( (int) $author === $user->ID || $author === $user->user_login ) {
 				$hit = $user->ID;
 			}
 		}
 		if ( false === $hit ) {
-			$authors_nice = array();
+			$authors_nice = [];
 			foreach ( $authors as $_author ) {
 				$authors_nice[] = sprintf( '%s (%s)', $_author->user_login, $_author->display_name );
 			}
@@ -395,7 +398,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_max_num_posts( $num ) {
-		if ( ! is_null( $num ) && ( ! is_numeric( $num ) || $num <= 0 ) ) {
+		if ( null !== $num && ( ! is_numeric( $num ) || $num <= 0 ) ) {
 			WP_CLI::warning( sprintf( 'max_num_posts should be a positive integer.', $num ) );
 			return false;
 		}
@@ -406,7 +409,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_category( $category ) {
-		if ( is_null( $category ) ) {
+		if ( null === $category ) {
 			return true;
 		}
 
@@ -420,7 +423,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_post_status( $status ) {
-		if ( is_null( $status ) ) {
+		if ( null === $status ) {
 			return true;
 		}
 
@@ -439,11 +442,11 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	private function check_skip_comments( $skip ) {
-		if ( is_null( $skip ) ) {
+		if ( null === $skip ) {
 			return true;
 		}
 
-		if ( (int) $skip <> 0 && (int) $skip <> 1 ) {
+		if ( 0 !== (int) $skip && 1 !== (int) $skip ) {
 			WP_CLI::warning( 'skip_comments needs to be 0 (no) or 1 (yes).' );
 			return false;
 		}

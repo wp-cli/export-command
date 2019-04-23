@@ -12,7 +12,7 @@ class WP_Export_File_Writer extends WP_Export_Base_Writer {
 	public function export() {
 		$this->f = fopen( $this->file_name, 'w' );
 		if ( ! $this->f ) {
-			throw new WP_Export_Exception( sprintf( __( 'WP Export: error opening %s for writing.' ), $this->file_name ) );
+			throw new WP_Export_Exception( "WP Export: error opening {$this->file_name} for writing." );
 		}
 
 		try {

@@ -51,4 +51,15 @@
 		</properties>
 	</rule>
 
+	<!-- Exclude existing classes from the prefix rule as it would break BC to prefix them now. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound">
+		<exclude-pattern>*/src/Export_Command\.php$</exclude-pattern>
+		<exclude-pattern>*/src/WP_(Map|Post_IDs)_Iterator\.php$</exclude-pattern>
+		<exclude-pattern>*/src/WP_(Export_Term|Iterator)_Exception\.php$</exclude-pattern>
+		<exclude-pattern>*/src/WP_Export_WXR_Formatter\.php$</exclude-pattern>
+		<exclude-pattern>*/src/WP_Export_XML_Over_HTTP\.php$</exclude-pattern>
+		<exclude-pattern>*/src/WP_Export_(Base|File|Split_Files|Stdout)?_Writer\.php$</exclude-pattern>
+		<exclude-pattern>*/src/WP_Export_(Exception|Oxymel|Query|Returner)\.php$</exclude-pattern>
+	</rule>
+
 </ruleset>

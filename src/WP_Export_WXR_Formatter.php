@@ -6,7 +6,7 @@
  *
  * @since 2.5.0
  */
-define( 'WXR_VERSION', '1.2' );
+define( 'WXR_VERSION', '1.2' ); //phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- WordPress constant.
 
 /**
  * Responsible for formatting the data in WP_Export_Query to WXR
@@ -153,6 +153,7 @@ COMMENT;
 
 	public function rss2_head_action() {
 		ob_start();
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
 		do_action( 'rss2_head' );
 		$action_output = ob_get_clean();
 		return $action_output;
@@ -165,8 +166,8 @@ COMMENT;
 		setup_postdata( $post );
 
 		$oxymel->item->contains
-			->title( apply_filters( 'the_title_rss', $post->post_title ) )
-			->link( esc_url( apply_filters( 'the_permalink_rss', get_permalink() ) ) )
+			->title( apply_filters( 'the_title_rss', $post->post_title ) ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
+			->link( esc_url( apply_filters( 'the_permalink_rss', get_permalink() ) ) ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
 			->pubDate( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) )
 			->tag( 'dc:creator', get_the_author_meta( 'login' ) )
 			->guid( esc_url( get_the_guid() ), array( 'isPermaLink' => 'false' ) )
@@ -238,7 +239,7 @@ COMMENT;
 				->tag( 'wp:term_id', $term->term_id )
 				->tag( 'wp:term_taxonomy', $term->taxonomy )
 				->tag( 'wp:term_slug', $term->slug );
-			if ( 'nav_menu' != $term->taxonomy ) {
+			if ( 'nav_menu' !== $term->taxonomy ) {
 				$oxymel
 				->tag( 'wp:term_parent', $term->parent_slug );
 			}
