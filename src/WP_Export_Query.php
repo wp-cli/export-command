@@ -1,4 +1,7 @@
 <?php
+
+use WP_CLI\Utils;
+
 /**
  * Represents a set of posts and other site data to be exported.
  *
@@ -58,6 +61,7 @@ class WP_Export_Query {
 	}
 
 	public function wp_generator_tag() {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		return apply_filters( 'the_generator', get_the_generator( 'export' ), 'export' );
 	}
 
@@ -120,16 +124,20 @@ class WP_Export_Query {
 
 	public function exportify_post( $post ) {
 		$GLOBALS['wp_query']->in_the_loop = true;
-		$previous_global_post             = \WP_CLI\Utils\get_flag_value( $GLOBALS, 'post' );
-		$GLOBALS['post']                  = $post;
+		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
+		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$post->post_content = apply_filters( 'the_content_export', $post->post_content );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$post->post_excerpt = apply_filters( 'the_excerpt_export', $post->post_excerpt );
 		$post->is_sticky    = is_sticky( $post->ID ) ? 1 : 0;
 		$post->terms        = self::get_terms_for_post( $post );
 		$post->meta         = self::get_meta_for_post( $post );
 		$post->comments     = $this->get_comments_for_post( $post );
-		$GLOBALS['post']    = $previous_global_post;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Revert back to original.
+		$GLOBALS['post'] = $previous_global_post;
 		return $post;
 	}
 
@@ -198,7 +206,7 @@ class WP_Export_Query {
 			return;
 		}
 
-		if ( $this->filters['with_attachments'] == false && ( ! $this->filters['post_type'] || ! in_array( 'attachment', $this->filters['post_type'], true ) ) ) {
+		if ( false !== $this->filters['with_attachments'] && ( ! $this->filters['post_type'] || ! in_array( 'attachment', $this->filters['post_type'], true ) ) ) {
 			unset( $post_types['attachment'] );
 		}
 
@@ -262,7 +270,7 @@ class WP_Export_Query {
 
 	private function category_where() {
 		global $wpdb;
-		if ( 'post' != $this->filters['post_type'] && ! in_array( 'post', (array) $this->filters['post_type'] ) ) {
+		if ( 'post' !== $this->filters['post_type'] && ! in_array( 'post', (array) $this->filters['post_type'], true ) ) {
 			return;
 		}
 		$category = $this->find_category_from_any_object( $this->filters['category'] );
@@ -287,8 +295,9 @@ class WP_Export_Query {
 		if ( ! $post_ids ) {
 			return array();
 		}
-		$attachment_ids = array();
-		while ( $batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK ) ) {
+		$attachment_ids    = [];
+		$batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK );
+		while ( $batch_of_post_ids ) {
 			$post_parent_condition = _wp_export_build_IN_condition( 'post_parent', $batch_of_post_ids );
 			$attachment_ids        = array_merge( $attachment_ids, (array) $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND $post_parent_condition" ) );
 		}
@@ -296,6 +305,7 @@ class WP_Export_Query {
 	}
 
 	private function bloginfo_rss( $section ) {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		return apply_filters( 'bloginfo_rss', get_bloginfo_rss( $section ), $section );
 	}
 
@@ -323,9 +333,10 @@ class WP_Export_Query {
 	}
 
 	private static function topologically_sort_terms( $terms ) {
-		$sorted = array();
-		while ( $term = array_shift( $terms ) ) {
-			if ( $term->parent == 0 || isset( $sorted[ $term->parent ] ) ) {
+		$sorted = [];
+		$term   = array_shift( $terms );
+		while ( $term ) {
+			if ( 0 === $term->parent || isset( $sorted[ $term->parent ] ) ) {
 				$sorted[ $term->term_id ] = $term;
 			} else {
 				$terms[] = $term;
@@ -340,7 +351,7 @@ class WP_Export_Query {
 
 		foreach ( $terms as $term ) {
 			$term_ids[ $term->term_id ] = true;
-			if ( $term->parent != 0 ) {
+			if ( 0 !== $term->parent ) {
 				$have_parent[] = $term;
 			}
 		}
@@ -348,7 +359,7 @@ class WP_Export_Query {
 		foreach ( $have_parent as $has_parent ) {
 			if ( ! isset( $term_ids[ $has_parent->parent ] ) ) {
 				$this->missing_parents = $has_parent;
-				throw new WP_Export_Term_Exception( sprintf( __( 'Term is missing a parent: %1$s (%2$d)' ), $has_parent->slug, $has_parent->term_taxonomy_id ) );
+				throw new WP_Export_Term_Exception( "Term is missing a parent: {$has_parent->slug} ({$has_parent->term_taxonomy_id})" );
 			}
 		}
 	}
@@ -368,10 +379,11 @@ class WP_Export_Query {
 		$meta_for_export = array();
 		$meta_from_db    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE post_id = %d", $post->ID ) );
 		foreach ( $meta_from_db as $meta ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 			if ( apply_filters( 'wxr_export_skip_postmeta', false, $meta->meta_key, $meta ) ) {
 				continue;
 			}
-			if ( in_array( $meta->meta_key, array( '_edit_lock', '_wp_attachment_metadata', '_wp_attached_file' ) ) ) {
+			if ( in_array( $meta->meta_key, [ '_edit_lock', '_wp_attachment_metadata', '_wp_attached_file' ], true ) ) {
 				continue;
 			}
 			$meta_for_export[] = $meta;

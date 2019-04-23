@@ -3,7 +3,7 @@
 abstract class WP_Export_Base_Writer {
 	protected $formatter;
 
-	function __construct( $formatter ) {
+	public function __construct( $formatter ) {
 		$this->formatter = $formatter;
 	}
 
