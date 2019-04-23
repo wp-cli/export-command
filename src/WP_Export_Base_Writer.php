@@ -9,7 +9,7 @@ abstract class WP_Export_Base_Writer {
 
 	public function export() {
 		$this->write( $this->formatter->before_posts() );
-		foreach( $this->formatter->posts() as $post_in_wxr ) {
+		foreach ( $this->formatter->posts() as $post_in_wxr ) {
 			$this->write( $post_in_wxr );
 		}
 		$this->write( $this->formatter->after_posts() );

@@ -9,7 +9,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 
 	private $result = '';
 	private $f;
-	private $next_file_number = 0;
+	private $next_file_number  = 0;
 	private $current_file_size = 0;
 
 	function __construct( $formatter, $writer_args = array() ) {
@@ -29,14 +29,14 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 		}
 
 		$this->destination_directory = $writer_args['destination_directory'];
-		$this->filename_template = $writer_args['filename_template'];
-		$this->before_posts_xml = $this->formatter->before_posts();
-		$this->after_posts_xml = $this->formatter->after_posts();
+		$this->filename_template     = $writer_args['filename_template'];
+		$this->before_posts_xml      = $this->formatter->before_posts();
+		$this->after_posts_xml       = $this->formatter->after_posts();
 	}
 
 	public function export() {
 		$this->start_new_file();
-		foreach( $this->formatter->posts() as $post_xml ) {
+		foreach ( $this->formatter->posts() as $post_xml ) {
 			if ( WP_CLI_EXPORT_COMMAND_NO_SPLIT !== $this->max_file_size && $this->current_file_size + strlen( $post_xml ) > $this->max_file_size ) {
 				$this->start_new_file();
 			}
@@ -46,7 +46,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	}
 
 	protected function write( $xml ) {
-		$res = fwrite( $this->f, $xml);
+		$res = fwrite( $this->f, $xml );
 		if ( false === $res ) {
 			throw new WP_Export_Exception( __( 'WP Export: error writing to export file.' ) );
 		}
@@ -58,8 +58,8 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 			$this->close_current_file();
 		}
 		$file_path = $this->next_file_path();
-		$this->f = fopen( $file_path, 'w' );
-		if ( !$this->f ) {
+		$this->f   = fopen( $file_path, 'w' );
+		if ( ! $this->f ) {
 			throw new WP_Export_Exception( sprintf( __( 'WP Export: error opening %s for writing.' ), $file_path ) );
 		}
 		do_action( 'wp_export_new_file', $file_path );
@@ -68,7 +68,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	}
 
 	private function close_current_file() {
-		if ( !$this->f ) {
+		if ( ! $this->f ) {
 			return;
 		}
 		$this->write( $this->after_posts_xml );
