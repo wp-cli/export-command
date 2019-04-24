@@ -1,6 +1,6 @@
 <?php
 
-function wp_export( $args = array() ) {
+function wpcli_export_wp( $args = array() ) {
 	$defaults     = array(
 		'filters'     => array(),
 		'format'      => 'WP_Export_WXR_Formatter',
@@ -18,9 +18,9 @@ function wp_export( $args = array() ) {
 	}
 }
 
-function wp_export_new_style_args_from_old_style_args( $args ) {
+function wpcli_export_wp_new_style_args_from_old_style_args( $args ) {
 	if ( isset( $args['content'] ) ) {
-		if ( 'all' == $args['content'] ) {
+		if ( 'all' === $args['content'] ) {
 			unset( $args['content'] );
 		} else {
 			$args['post_type'] = $args['content'];
@@ -30,7 +30,8 @@ function wp_export_new_style_args_from_old_style_args( $args ) {
 }
 
 // TEMPORARY
-function _wp_export_build_IN_condition( $column_name, $values, $format = '%s' ) {
+// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid -- used to create IN condition.
+function wpcli_export_wp_build_IN_condition( $column_name, $values, $format = '%s' ) {
 	global $wpdb;
 
 	if ( ! is_array( $values ) || empty( $values ) ) {

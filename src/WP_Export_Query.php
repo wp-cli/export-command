@@ -210,7 +210,7 @@ class WP_Export_Query {
 			unset( $post_types['attachment'] );
 		}
 
-		$this->wheres[] = _wp_export_build_IN_condition( 'p.post_type', $post_types );
+		$this->wheres[] = wpcli_export_wp_build_IN_condition( 'p.post_type', $post_types );
 	}
 
 	private function status_where() {
@@ -298,7 +298,7 @@ class WP_Export_Query {
 		$attachment_ids    = [];
 		$batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK );
 		while ( $batch_of_post_ids ) {
-			$post_parent_condition = _wp_export_build_IN_condition( 'post_parent', $batch_of_post_ids );
+			$post_parent_condition = wpcli_export_wp_build_IN_condition( 'post_parent', $batch_of_post_ids );
 			$attachment_ids        = array_merge( $attachment_ids, (array) $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND $post_parent_condition" ) );
 		}
 		return array_map( 'intval', $attachment_ids );

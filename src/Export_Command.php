@@ -175,7 +175,7 @@ class Export_Command extends WP_CLI_Command {
 
 		try {
 			if ( $this->stdout ) {
-				wp_export(
+				wpcli_export_wp(
 					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_Stdout_Writer',
@@ -183,7 +183,7 @@ class Export_Command extends WP_CLI_Command {
 					]
 				);
 			} else {
-				wp_export(
+				wpcli_export_wp(
 					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_Split_Files_Writer',
