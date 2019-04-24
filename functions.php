@@ -20,17 +20,6 @@ function wpcli_export( $args = array() ) {
 	}
 }
 
-function wpcli_export_new_style_args_from_old_style_args( $args ) {
-	if ( isset( $args['content'] ) ) {
-		if ( 'all' === $args['content'] ) {
-			unset( $args['content'] );
-		} else {
-			$args['post_type'] = $args['content'];
-		}
-	}
-	return $args;
-}
-
 function wpcli_export_build_in_condition( $column_name, $values, $format = '%s' ) {
 	global $wpdb;
 
