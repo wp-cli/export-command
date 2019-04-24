@@ -353,7 +353,7 @@ class WP_Export_Query {
 
 		foreach ( $terms as $term ) {
 			$term_ids[ $term->term_id ] = true;
-			if ( 0 !== $term->parent ) {
+			if ( 0 !== (int) $term->parent ) {
 				$have_parent[] = $term;
 			}
 		}
