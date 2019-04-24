@@ -297,7 +297,7 @@ class WP_Export_Query {
 			return array();
 		}
 		$attachment_ids = [];
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition - Assigment is part of the break condition.
+		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assigment is part of the break condition.
 		while ( $batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK ) ) {
 			$post_parent_condition = _wp_export_build_IN_condition( 'post_parent', $batch_of_post_ids );
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Escaped in wpcli_export_build_in_condition() function.
