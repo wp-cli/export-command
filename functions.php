@@ -1,5 +1,7 @@
 <?php
 
+use WP_CLI\Utils;
+
 function wpcli_export( $args = array() ) {
 	$defaults     = array(
 		'filters'     => array(),
@@ -35,6 +37,8 @@ function wpcli_export_build_in_condition( $column_name, $values, $format = '%s' 
 	if ( ! is_array( $values ) || empty( $values ) ) {
 		return '';
 	}
-	$formats = implode( ', ', array_fill( 0, count( $values ), $format ) );
-	return $wpdb->prepare( "$column_name IN ($formats)", $values );
+	$formats         = implode( ', ', array_fill( 0, count( $values ), $format ) );
+	$column_name_sql = Utils\esc_sql_ident( $column_name );
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $column_name_sql escaped as ident, $formats hardcoded value.
+	return $wpdb->prepare( "{$column_name_sql} IN ({$formats})", $values );
 }

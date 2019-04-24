@@ -169,6 +169,7 @@ class WP_Export_Query {
 		}
 		$join = implode( ' ', array_filter( $this->joins ) );
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Individual where clauses run through $wpdb->prepare().
 		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p $join $where {$this->max_num_posts()}" );
 		if ( $this->filters['post_type'] ) {
 			$post_ids = array_merge( $post_ids, $this->include_attachment_ids( $post_ids ) );
@@ -299,7 +300,8 @@ class WP_Export_Query {
 		$batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK );
 		while ( $batch_of_post_ids ) {
 			$post_parent_condition = wpcli_export_build_in_condition( 'post_parent', $batch_of_post_ids );
-			$attachment_ids        = array_merge( $attachment_ids, (array) $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND $post_parent_condition" ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Escaped in wpcli_export_build_in_condition() function.
+			$attachment_ids = array_merge( $attachment_ids, (array) $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment' AND {$post_parent_condition}" ) );
 		}
 		return array_map( 'intval', $attachment_ids );
 	}
