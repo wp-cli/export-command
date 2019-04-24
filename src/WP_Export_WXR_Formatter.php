@@ -162,7 +162,8 @@ COMMENT;
 	public function post( $post ) {
 		$oxymel                           = new WP_Export_Oxymel();
 		$GLOBALS['wp_query']->in_the_loop = true;
-		$GLOBALS['post']                  = $post;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Intentional.
+		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
 
 		$oxymel->item->contains
