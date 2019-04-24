@@ -7,7 +7,6 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	private $before_posts_xml;
 	private $after_posts_xml;
 
-	private $result = '';
 	private $f;
 	private $next_file_number  = 0;
 	private $current_file_size = 0;
