@@ -62,4 +62,10 @@
 		<exclude-pattern>*/src/WP_Export_(Exception|Oxymel|Query|Returner)\.php$</exclude-pattern>
 	</rule>
 
+
+	<!-- Exclude the word `wordpress` from being forced into "trademarked" capitalization in the file names. -->
+	<rule ref="WordPress.WP.CapitalPDangit.Misspelled">
+		<exclude-pattern>*/src/Export_Command\.php$</exclude-pattern>
+	</rule>
+
 </ruleset>
