@@ -1,8 +1,7 @@
 <?php
 
-use WP_CLI\Utils;
-
-function wpcli_export( $args = array() ) {
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Renaming breaks Phar compat.
+function wp_export( $args = array() ) {
 	$defaults     = array(
 		'filters'     => array(),
 		'format'      => 'WP_Export_WXR_Formatter',
@@ -20,14 +19,14 @@ function wpcli_export( $args = array() ) {
 	}
 }
 
-function wpcli_export_build_in_condition( $column_name, $values, $format = '%s' ) {
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound,WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid -- Renaming breaks Phar compat.
+function _wp_export_build_IN_condition( $column_name, $values, $format = '%s' ) {
 	global $wpdb;
 
 	if ( ! is_array( $values ) || empty( $values ) ) {
 		return '';
 	}
-	$formats         = implode( ', ', array_fill( 0, count( $values ), $format ) );
-	$column_name_sql = Utils\esc_sql_ident( $column_name );
+	$formats = implode( ', ', array_fill( 0, count( $values ), $format ) );
 	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $column_name_sql escaped as ident, $formats hardcoded value.
-	return $wpdb->prepare( "{$column_name_sql} IN ({$formats})", $values );
+	return $wpdb->prepare( "{$column_name} IN ({$formats})", $values );
 }

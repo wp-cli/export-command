@@ -2,7 +2,8 @@
 
 use WP_CLI\Utils;
 
-define( 'WPCLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Changing breaks Phar compat.
+define( 'WP_CLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
 
 /**
  * Exports WordPress content to a WXR file.
@@ -175,7 +176,7 @@ class Export_Command extends WP_CLI_Command {
 
 		try {
 			if ( $this->stdout ) {
-				wpcli_export(
+				wp_export(
 					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_Stdout_Writer',
@@ -183,7 +184,7 @@ class Export_Command extends WP_CLI_Command {
 					]
 				);
 			} else {
-				wpcli_export(
+				wp_export(
 					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_Split_Files_Writer',
