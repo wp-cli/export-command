@@ -207,7 +207,7 @@ class WP_Export_Query {
 			return;
 		}
 
-		if ( false !== $this->filters['with_attachments'] && ( ! $this->filters['post_type'] || ! in_array( 'attachment', $this->filters['post_type'], true ) ) ) {
+		if ( false === $this->filters['with_attachments'] && ( ! $this->filters['post_type'] || ! in_array( 'attachment', $this->filters['post_type'], true ) ) ) {
 			unset( $post_types['attachment'] );
 		}
 
