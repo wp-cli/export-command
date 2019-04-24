@@ -23,8 +23,8 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 		//TODO: check if args are not missing
 		if ( is_null( $writer_args['max_file_size'] ) ) {
 			$this->max_file_size = 15 * MB_IN_BYTES;
-		} elseif ( WPCLI_EXPORT_COMMAND_NO_SPLIT === $writer_args['max_file_size'] ) {
-			$this->max_file_size = WPCLI_EXPORT_COMMAND_NO_SPLIT;
+		} elseif ( WP_CLI_EXPORT_COMMAND_NO_SPLIT === $writer_args['max_file_size'] ) {
+			$this->max_file_size = WP_CLI_EXPORT_COMMAND_NO_SPLIT;
 		} else {
 			$this->max_file_size = $writer_args['max_file_size'] * MB_IN_BYTES;
 		}
@@ -38,7 +38,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	public function export() {
 		$this->start_new_file();
 		foreach ( $this->formatter->posts() as $post_xml ) {
-			if ( WPCLI_EXPORT_COMMAND_NO_SPLIT !== $this->max_file_size && $this->current_file_size + strlen( $post_xml ) > $this->max_file_size ) {
+			if ( WP_CLI_EXPORT_COMMAND_NO_SPLIT !== $this->max_file_size && $this->current_file_size + strlen( $post_xml ) > $this->max_file_size ) {
 				$this->start_new_file();
 			}
 			$this->write( $post_xml );
