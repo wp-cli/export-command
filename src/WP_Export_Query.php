@@ -338,7 +338,7 @@ class WP_Export_Query {
 		$sorted = [];
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- assignment is used as break condition.
 		while ( $term = array_shift( $terms ) ) {
-			if ( 0 === $term->parent || isset( $sorted[ $term->parent ] ) ) {
+			if ( 0 === (int) $term->parent || isset( $sorted[ $term->parent ] ) ) {
 				$sorted[ $term->term_id ] = $term;
 			} else {
 				$terms[] = $term;

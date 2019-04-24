@@ -22,7 +22,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 		//TODO: check if args are not missing
 		if ( is_null( $writer_args['max_file_size'] ) ) {
 			$this->max_file_size = 15 * MB_IN_BYTES;
-		} elseif ( WP_CLI_EXPORT_COMMAND_NO_SPLIT === $writer_args['max_file_size'] ) {
+		} elseif ( WP_CLI_EXPORT_COMMAND_NO_SPLIT === (string) $writer_args['max_file_size'] ) {
 			$this->max_file_size = WP_CLI_EXPORT_COMMAND_NO_SPLIT;
 		} else {
 			$this->max_file_size = $writer_args['max_file_size'] * MB_IN_BYTES;
