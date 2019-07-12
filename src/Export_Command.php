@@ -180,7 +180,7 @@ class Export_Command extends WP_CLI_Command {
 					[
 						'filters'     => $this->export_args,
 						'writer'      => 'WP_Export_File_Writer',
-						'writer_args' => 'php://output'
+						'writer_args' => 'php://output',
 					]
 				);
 			} else {
