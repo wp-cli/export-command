@@ -17,16 +17,41 @@ class WP_Export_WXR_Formatter {
 		$this->wxr_version = WXR_VERSION;
 	}
 
-	public function before_posts() {
+	public function before_posts( $opts = [] ) {
 		$before_posts_xml  = '';
-		$before_posts_xml .= $this->header();
-		$before_posts_xml .= $this->site_metadata();
-		$before_posts_xml .= $this->authors();
-		$before_posts_xml .= $this->categories();
-		$before_posts_xml .= $this->tags();
-		$before_posts_xml .= $this->nav_menu_terms();
-		$before_posts_xml .= $this->custom_taxonomies_terms();
-		$before_posts_xml .= $this->rss2_head_action();
+
+		if ( !$opts || in_array( 'header', $opts, true ) ) {
+			$before_posts_xml .= $this->header();
+		}
+
+		if ( !$opts || in_array( 'site_metadata', $opts, true ) ) {
+			$before_posts_xml .= $this->site_metadata();
+		}
+
+		if ( !$opts || in_array( 'authors', $opts, true ) ) {
+			$before_posts_xml .= $this->authors();
+		}
+
+		if ( !$opts || in_array( 'categories', $opts, true ) ) {
+			$before_posts_xml .= $this->categories();
+		}
+
+		if ( !$opts || in_array( 'tags', $opts, true ) ) {
+			$before_posts_xml .= $this->tags();
+		}
+
+		if ( !$opts || in_array( 'nav_menu_terms', $opts, true ) ) {
+			$before_posts_xml .= $this->nav_menu_terms();
+		}
+
+		if ( !$opts || in_array( 'custom_taxonomies_terms', $opts, true ) ) {
+			$before_posts_xml .= $this->custom_taxonomies_terms();
+		}
+
+		if ( !$opts || in_array( 'rss2_head_action', $opts, true ) ) {
+			$before_posts_xml .= $this->rss2_head_action();
+}
+
 		return $before_posts_xml;
 	}
 
