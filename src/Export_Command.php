@@ -213,7 +213,7 @@ class Export_Command extends WP_CLI_Command {
 		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format );
 	}
 
-	private static function load_export_api() {
+	public static function load_export_api() {
 		require dirname( dirname( __FILE__ ) ) . '/functions.php';
 	}
 
