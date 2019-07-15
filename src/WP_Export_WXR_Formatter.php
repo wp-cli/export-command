@@ -29,7 +29,7 @@ class WP_Export_WXR_Formatter {
 			'rss2_head_action',
 		];
 
-		$before_posts_xml  = '';
+		$before_posts_xml = '';
 
 		foreach ( $available_sections as $section ) {
 			if ( ! $requested_sections || in_array( $section, $requested_sections, true ) ) {
