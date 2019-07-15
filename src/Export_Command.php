@@ -179,8 +179,8 @@ class Export_Command extends WP_CLI_Command {
 				wp_export(
 					[
 						'filters'     => $this->export_args,
-						'writer'      => 'WP_Export_Stdout_Writer',
-						'writer_args' => null,
+						'writer'      => 'WP_Export_File_Writer',
+						'writer_args' => 'php://output',
 					]
 				);
 			} else {
