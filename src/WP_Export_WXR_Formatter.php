@@ -32,7 +32,7 @@ class WP_Export_WXR_Formatter {
 		$before_posts_xml  = '';
 
 		foreach ( $available_sections as $section ) {
-			if ( !$requested_sections || in_array( $section, $requested_sections, true ) ) {
+			if ( ! $requested_sections || in_array( $section, $requested_sections, true ) ) {
 				$before_posts_xml .= $this->$section();
 			}
 		}
