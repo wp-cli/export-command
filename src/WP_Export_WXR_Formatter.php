@@ -17,16 +17,26 @@ class WP_Export_WXR_Formatter {
 		$this->wxr_version = WXR_VERSION;
 	}
 
-	public function before_posts() {
-		$before_posts_xml  = '';
-		$before_posts_xml .= $this->header();
-		$before_posts_xml .= $this->site_metadata();
-		$before_posts_xml .= $this->authors();
-		$before_posts_xml .= $this->categories();
-		$before_posts_xml .= $this->tags();
-		$before_posts_xml .= $this->nav_menu_terms();
-		$before_posts_xml .= $this->custom_taxonomies_terms();
-		$before_posts_xml .= $this->rss2_head_action();
+	public function before_posts( $requested_sections = [] ) {
+		$available_sections = [
+			'header',
+			'site_metadata',
+			'authors',
+			'categories',
+			'tags',
+			'nav_menu_terms',
+			'custom_taxonomies_terms',
+			'rss2_head_action',
+		];
+
+		$before_posts_xml = '';
+
+		foreach ( $available_sections as $section ) {
+			if ( ! $requested_sections || in_array( $section, $requested_sections, true ) ) {
+				$before_posts_xml .= $this->$section();
+			}
+		}
+
 		return $before_posts_xml;
 	}
 
