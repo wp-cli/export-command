@@ -210,7 +210,7 @@ class Export_Command extends WP_CLI_Command {
 		if ( empty( $sitename ) ) {
 			$sitename = 'site';
 		}
-		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format );
+		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	public static function load_export_api() {
@@ -263,7 +263,7 @@ class Export_Command extends WP_CLI_Command {
 			WP_CLI::warning( sprintf( 'The start_date %s is invalid.', $date ) );
 			return false;
 		}
-		$this->export_args['start_date'] = date( 'Y-m-d', $time );
+		$this->export_args['start_date'] = date( 'Y-m-d', $time ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		return true;
 	}
 
@@ -277,7 +277,7 @@ class Export_Command extends WP_CLI_Command {
 			WP_CLI::warning( sprintf( 'The end_date %s is invalid.', $date ) );
 			return false;
 		}
-		$this->export_args['end_date'] = date( 'Y-m-d', $time );
+		$this->export_args['end_date'] = date( 'Y-m-d', $time ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		return true;
 	}
 
