@@ -53,7 +53,7 @@ class WP_Export_Query {
 			'url'         => $this->bloginfo_rss( 'url' ),
 			'language'    => $this->bloginfo_rss( 'language' ),
 			'description' => $this->bloginfo_rss( 'description' ),
-			'pubDate'     => date( 'D, d M Y H:i:s +0000' ),
+			'pubDate'     => date( 'D, d M Y H:i:s +0000' ), // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 			'site_url'    => is_multisite() ? network_home_url() : $this->bloginfo_rss( 'url' ),
 			'blog_url'    => $this->bloginfo_rss( 'url' ),
 		);
@@ -239,7 +239,7 @@ class WP_Export_Query {
 		if ( ! $timestamp ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_date >= %s', date( 'Y-m-d 00:00:00', $timestamp ) );
+		$this->wheres[] = $wpdb->prepare( 'p.post_date >= %s', date( 'Y-m-d 00:00:00', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	private function end_date_where() {
@@ -252,7 +252,7 @@ class WP_Export_Query {
 		if ( ! $timestamp ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_date <= %s', date( 'Y-m-d 23:59:59', $timestamp ) );
+		$this->wheres[] = $wpdb->prepare( 'p.post_date <= %s', date( 'Y-m-d 23:59:59', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	private function start_id_where() {
