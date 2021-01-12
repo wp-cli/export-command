@@ -188,6 +188,8 @@ COMMENT;
 			->tag( 'wp:post_id', $post->ID )
 			->tag( 'wp:post_date', $post->post_date )
 			->tag( 'wp:post_date_gmt', $post->post_date_gmt )
+			->tag( 'wp:post_modified', $post->post_modified )
+			->tag( 'wp:post_modified_gmt', $post->post_modified_gmt )
 			->tag( 'wp:comment_status', $post->comment_status )
 			->tag( 'wp:ping_status', $post->ping_status )
 			->tag( 'wp:post_name', $post->post_name )
