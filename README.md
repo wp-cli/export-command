@@ -3,7 +3,7 @@ wp-cli/export-command
 
 Exports WordPress content to a WXR file.
 
-[![Build Status](https://travis-ci.org/wp-cli/export-command.svg?branch=master)](https://travis-ci.org/wp-cli/export-command)
+
 
 Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contributing) | [Support](#support)
 
