@@ -168,7 +168,7 @@ class Export_Command extends WP_CLI_Command {
 
 		add_action(
 			'wp_export_new_file',
-			function( $file_path ) {
+			static function ( $file_path ) {
 				WP_CLI::log( sprintf( 'Writing to file %s', $file_path ) );
 				Utils\wp_clear_object_cache();
 			}
@@ -214,7 +214,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	public static function load_export_api() {
-		require dirname( dirname( __FILE__ ) ) . '/functions.php';
+		require dirname( __DIR__ ) . '/functions.php';
 	}
 
 	private function validate_args( $args ) {
@@ -313,7 +313,6 @@ class Export_Command extends WP_CLI_Command {
 		$post_type  = array_unique( array_filter( explode( ',', $post_type ) ) );
 		$post_types = get_post_types();
 
-		$keep_post_types = [];
 		foreach ( $post_type as $type ) {
 			if ( ! in_array( $type, $post_types, true ) ) {
 				WP_CLI::warning(
@@ -351,7 +350,7 @@ class Export_Command extends WP_CLI_Command {
 			return true;
 		}
 
-		$start_id = intval( $start_id );
+		$start_id = (int) $start_id;
 
 		// Post IDs must be greater than 0.
 		if ( 0 >= $start_id ) {
@@ -371,7 +370,7 @@ class Export_Command extends WP_CLI_Command {
 		// phpcs:ignore WordPress.WP.DeprecatedFunctions.get_users_of_blogFound -- Fallback.
 		$authors = function_exists( 'get_users' ) ? get_users() : get_users_of_blog();
 		if ( empty( $authors ) || is_wp_error( $authors ) ) {
-			WP_CLI::warning( sprintf( 'Could not find any authors in this blog.' ) );
+			WP_CLI::warning( 'Could not find any authors in this blog.' );
 			return false;
 		}
 		$hit = false;
@@ -398,7 +397,7 @@ class Export_Command extends WP_CLI_Command {
 
 	private function check_max_num_posts( $num ) {
 		if ( null !== $num && ( ! is_numeric( $num ) || $num <= 0 ) ) {
-			WP_CLI::warning( sprintf( 'max_num_posts should be a positive integer.', $num ) );
+			WP_CLI::warning( 'max_num_posts should be a positive integer.' );
 			return false;
 		}
 
@@ -455,7 +454,7 @@ class Export_Command extends WP_CLI_Command {
 
 	private function check_max_file_size( $size ) {
 		if ( ! is_numeric( $size ) ) {
-			WP_CLI::warning( sprintf( 'max_file_size should be numeric.', $size ) );
+			WP_CLI::warning( 'max_file_size should be numeric.' );
 			return false;
 		}
 

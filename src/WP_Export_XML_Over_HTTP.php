@@ -17,12 +17,12 @@ class WP_Export_XML_Over_HTTP extends WP_Export_Base_Writer {
 		} catch ( WP_Export_Exception $e ) {
 			// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Possibly used by third party extension.
 			$message = apply_filters( 'export_error_message', $e->getMessage() );
-			wp_die( $message, __( 'Export Error' ), array( 'back_link' => true ) );
+			wp_die( $message, __( 'Export Error' ), [ 'back_link' => true ] );
 		} catch ( WP_Export_Term_Exception $e ) {
 			do_action( 'export_term_orphaned', $this->formatter->export->missing_parents );
 			$message = apply_filters( 'export_term_error_message', $e->getMessage() );
 			// phpcs:enable
-			wp_die( $message, __( 'Export Error' ), array( 'back_link' => true ) );
+			wp_die( $message, __( 'Export Error' ), [ 'back_link' => true ] );
 		}
 	}
 

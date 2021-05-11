@@ -53,10 +53,10 @@ class WP_Post_IDs_Iterator implements Iterator {
 	private function load_next_posts_from_db() {
 		$next_batch_post_ids = array_splice( $this->ids_left, 0, $this->limit );
 		$in_post_ids_sql     = _wp_export_build_IN_condition( 'ID', $next_batch_post_ids );
-		$this->results       = $this->db->get_results( "SELECT * FROM {$this->db->posts} WHERE $in_post_ids_sql" );
+		$this->results       = $this->db->get_results( "SELECT * FROM {$this->db->posts} WHERE {$in_post_ids_sql}" );
 		if ( ! $this->results ) {
 			if ( $this->db->last_error ) {
-				throw new WP_Iterator_Exception( 'Database error: ' . $this->db->last_error );
+				throw new WP_Iterator_Exception( "Database error: {$this->db->last_error}" );
 			} else {
 				return false;
 			}

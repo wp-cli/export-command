@@ -41,7 +41,7 @@ class WP_Export_WXR_Formatter {
 	}
 
 	public function posts() {
-		return new WP_Map_Iterator( $this->export->posts(), array( $this, 'post' ) );
+		return new WP_Map_Iterator( $this->export->posts(), [ $this, 'post' ] );
 	}
 
 	public function after_posts() {
@@ -50,7 +50,6 @@ class WP_Export_WXR_Formatter {
 
 	public function header() {
 		$oxymel           = new Oxymel();
-		$charset          = $this->export->charset();
 		$wp_generator_tag = $this->export->wp_generator_tag();
 		$comment          = <<<COMMENT
 
@@ -77,14 +76,14 @@ COMMENT;
 			->comment( $comment )
 			->raw( $wp_generator_tag )
 			->open_rss(
-				array(
+				[
 					'version'       => '2.0',
 					'xmlns:excerpt' => "http://wordpress.org/export/{$this->wxr_version}/excerpt/",
 					'xmlns:content' => 'http://purl.org/rss/1.0/modules/content/',
 					'xmlns:wfw'     => 'http://wellformedweb.org/CommentAPI/',
 					'xmlns:dc'      => 'http://purl.org/dc/elements/1.1/',
 					'xmlns:wp'      => "http://wordpress.org/export/{$this->wxr_version}/",
-				)
+				]
 			)
 				->open_channel
 				->to_string();
@@ -126,7 +125,7 @@ COMMENT;
 	public function categories() {
 		$oxymel     = new WP_Export_Oxymel();
 		$categories = $this->export->categories();
-		foreach ( $categories as $term_id => $category ) {
+		foreach ( $categories as $category ) {
 			$category->parent_slug = $category->parent ? $categories[ $category->parent ]->slug : '';
 			$oxymel->tag( 'wp:category' )->contains
 				->tag( 'wp:term_id', $category->term_id )
@@ -165,8 +164,7 @@ COMMENT;
 		ob_start();
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
 		do_action( 'rss2_head' );
-		$action_output = ob_get_clean();
-		return $action_output;
+		return ob_get_clean();
 	}
 
 	public function post( $post ) {
@@ -181,7 +179,7 @@ COMMENT;
 			->link( esc_url( apply_filters( 'the_permalink_rss', get_permalink() ) ) ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
 			->pubDate( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) )
 			->tag( 'dc:creator', get_the_author_meta( 'login' ) )
-			->guid( esc_url( get_the_guid() ), array( 'isPermaLink' => 'false' ) )
+			->guid( esc_url( get_the_guid() ), [ 'isPermaLink' => 'false' ] )
 			->description( '' )
 			->tag( 'content:encoded' )->contains->cdata( $post->post_content )->end
 			->tag( 'excerpt:encoded' )->contains->cdata( $post->post_excerpt )->end
@@ -203,10 +201,10 @@ COMMENT;
 		foreach ( $post->terms as $term ) {
 			$oxymel
 			->category(
-				array(
+				[
 					'domain'   => $term->taxonomy,
 					'nicename' => $term->slug,
-				)
+				]
 			)->contains->cdata( $term->name )->end;
 		}
 		foreach ( $post->meta as $meta ) {
