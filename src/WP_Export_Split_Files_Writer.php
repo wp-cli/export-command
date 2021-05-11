@@ -48,7 +48,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	protected function write( $xml ) {
 		$res = fwrite( $this->f, $xml );
 		if ( false === $res ) {
-			throw new WP_Export_Exception( __( 'WP Export: error writing to export file.' ) );
+			throw new WP_Export_Exception( 'WP Export: error writing to export file.' );
 		}
 		$this->current_file_size += strlen( $xml );
 	}

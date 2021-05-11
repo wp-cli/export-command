@@ -18,8 +18,10 @@ class WP_Export_File_Writer extends WP_Export_Base_Writer {
 		try {
 			parent::export();
 		} catch ( WP_Export_Exception $e ) {
+			fclose( $this->f );
 			throw $e;
 		} catch ( WP_Export_Term_Exception $e ) {
+			fclose( $this->f );
 			throw $e;
 		}
 
@@ -29,7 +31,7 @@ class WP_Export_File_Writer extends WP_Export_Base_Writer {
 	protected function write( $xml ) {
 		$res = fwrite( $this->f, $xml );
 		if ( false === $res ) {
-			throw new WP_Export_Exception( __( 'WP Export: error writing to export file.' ) );
+			throw new WP_Export_Exception( 'WP Export: error writing to export file.' );
 		}
 	}
 }
