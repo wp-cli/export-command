@@ -10,7 +10,7 @@ use WP_CLI\Utils;
 class WP_Export_Query {
 	const QUERY_CHUNK = 100;
 
-	private static $defaults = array(
+	private static $defaults = [
 		'post_ids'      => null,
 		'post_type'     => null,
 		'status'        => null,
@@ -20,21 +20,20 @@ class WP_Export_Query {
 		'start_id'      => null,
 		'max_num_posts' => null,
 		'category'      => null,
-	);
+	];
 
 	private $post_ids;
 	private $filters;
-	private $xml_gen;
 
-	private $wheres = array();
-	private $joins  = array();
+	private $wheres = [];
+	private $joins  = [];
 
 	private $author;
 	private $category;
 
 	public $missing_parents = false;
 
-	public function __construct( $filters = array() ) {
+	public function __construct( $filters = [] ) {
 		$this->filters  = wp_parse_args( $filters, self::$defaults );
 		$this->post_ids = $this->calculate_post_ids();
 	}
@@ -48,7 +47,7 @@ class WP_Export_Query {
 	}
 
 	public function site_metadata() {
-		$metadata = array(
+		$metadata = [
 			'name'        => $this->bloginfo_rss( 'name' ),
 			'url'         => $this->bloginfo_rss( 'url' ),
 			'language'    => $this->bloginfo_rss( 'language' ),
@@ -56,7 +55,7 @@ class WP_Export_Query {
 			'pubDate'     => date( 'D, d M Y H:i:s +0000' ), // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 			'site_url'    => is_multisite() ? network_home_url() : $this->bloginfo_rss( 'url' ),
 			'blog_url'    => $this->bloginfo_rss( 'url' ),
-		);
+		];
 		return $metadata;
 	}
 
@@ -67,9 +66,9 @@ class WP_Export_Query {
 
 	public function authors() {
 		global $wpdb;
-		$authors    = array();
-		$author_ids = $wpdb->get_col( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status != 'auto-draft'" );
-		foreach ( (array) $author_ids as $author_id ) {
+		$authors    = [];
+		$author_ids = (array) $wpdb->get_col( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status != 'auto-draft'" );
+		foreach ( $author_ids as $author_id ) {
 			$authors[] = get_userdata( $author_id );
 		}
 		$authors = array_filter( $authors );
@@ -78,12 +77,12 @@ class WP_Export_Query {
 
 	public function categories() {
 		if ( $this->category ) {
-			return array( $this->category );
+			return [ $this->category ];
 		}
 		if ( $this->filters['post_type'] ) {
-			return array();
+			return [];
 		}
-		$categories = (array) get_categories( array( 'get' => 'all' ) );
+		$categories = (array) get_categories( [ 'get' => 'all' ] );
 
 		$this->check_for_orphaned_terms( $categories );
 
@@ -94,9 +93,9 @@ class WP_Export_Query {
 
 	public function tags() {
 		if ( $this->filters['post_type'] ) {
-			return array();
+			return [];
 		}
-		$tags = (array) get_tags( array( 'get' => 'all' ) );
+		$tags = (array) get_tags( [ 'get' => 'all' ] );
 
 		$this->check_for_orphaned_terms( $tags );
 
@@ -105,10 +104,10 @@ class WP_Export_Query {
 
 	public function custom_taxonomies_terms() {
 		if ( $this->filters['post_type'] ) {
-			return array();
+			return [];
 		}
-		$custom_taxonomies = get_taxonomies( array( '_builtin' => false ) );
-		$custom_terms      = (array) get_terms( $custom_taxonomies, array( 'get' => 'all' ) );
+		$custom_taxonomies = get_taxonomies( [ '_builtin' => false ] );
+		$custom_terms      = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
 		$this->check_for_orphaned_terms( $custom_terms );
 		$custom_terms = self::topologically_sort_terms( $custom_terms );
 		return $custom_terms;
@@ -116,7 +115,7 @@ class WP_Export_Query {
 
 	public function nav_menu_terms() {
 		$nav_menus = wp_get_nav_menus();
-		foreach ( $nav_menus as &$term ) {
+		foreach ( $nav_menus as $term ) {
 			$term->description = '';
 		}
 		return $nav_menus;
@@ -143,7 +142,7 @@ class WP_Export_Query {
 
 	public function posts() {
 		$posts_iterator = new WP_Post_IDs_Iterator( $this->post_ids, self::QUERY_CHUNK );
-		return new WP_Map_Iterator( $posts_iterator, array( $this, 'exportify_post' ) );
+		return new WP_Map_Iterator( $posts_iterator, [ $this, 'exportify_post' ] );
 	}
 
 	private function calculate_post_ids() {
@@ -170,7 +169,7 @@ class WP_Export_Query {
 		$join = implode( ' ', array_filter( $this->joins ) );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Individual where clauses run through $wpdb->prepare().
-		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p $join $where {$this->max_num_posts()}" );
+		$post_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} AS p {$join} {$where} {$this->max_num_posts()}" );
 		if ( $this->filters['post_type'] ) {
 			$post_ids = array_merge( $post_ids, $this->include_attachment_ids( $post_ids ) );
 		}
@@ -178,8 +177,7 @@ class WP_Export_Query {
 	}
 
 	private function post_type_where() {
-		global $wpdb;
-		$post_types_filters = array( 'can_export' => true );
+		$post_types_filters = [ 'can_export' => true ];
 		if ( $this->filters['post_type'] ) {
 			$post_types = $this->filters['post_type'];
 
@@ -187,12 +185,12 @@ class WP_Export_Query {
 			if ( is_array( $post_types ) && 1 === count( $post_types ) ) {
 				$post_types = array_shift( $post_types );
 			}
-			$post_types_filters = array_merge( $post_types_filters, array( 'name' => $post_types ) );
+			$post_types_filters = array_merge( $post_types_filters, [ 'name' => $post_types ] );
 		}
 
 		// Multiple post types
 		if ( isset( $post_types_filters['name'] ) && is_array( $post_types_filters['name'] ) ) {
-			$post_types = array();
+			$post_types = [];
 			foreach ( $post_types_filters['name'] as $post_type ) {
 				if ( post_type_exists( $post_type ) ) {
 					$post_types[] = $post_type;
@@ -294,7 +292,7 @@ class WP_Export_Query {
 	private function include_attachment_ids( $post_ids ) {
 		global $wpdb;
 		if ( ! $post_ids ) {
-			return array();
+			return [];
 		}
 		$attachment_ids = [];
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assigment is part of the break condition.
@@ -348,8 +346,8 @@ class WP_Export_Query {
 	}
 
 	private function check_for_orphaned_terms( $terms ) {
-		$term_ids    = array();
-		$have_parent = array();
+		$term_ids    = [];
+		$have_parent = [];
 
 		foreach ( $terms as $term ) {
 			$term_ids[ $term->term_id ] = true;
@@ -369,16 +367,14 @@ class WP_Export_Query {
 	private static function get_terms_for_post( $post ) {
 		$taxonomies = get_object_taxonomies( $post->post_type );
 		if ( empty( $taxonomies ) ) {
-			return array();
+			return [];
 		}
-		$terms = wp_get_object_terms( $post->ID, $taxonomies );
-		$terms = $terms ? $terms : array();
-		return $terms;
+		return wp_get_object_terms( $post->ID, $taxonomies ) ?: [];
 	}
 
 	private static function get_meta_for_post( $post ) {
 		global $wpdb;
-		$meta_for_export = array();
+		$meta_for_export = [];
 		$meta_from_db    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE post_id = %d", $post->ID ) );
 		foreach ( $meta_from_db as $meta ) {
 			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
@@ -397,14 +393,12 @@ class WP_Export_Query {
 		global $wpdb;
 
 		if ( isset( $this->filters['skip_comments'] ) ) {
-			return array();
+			return [];
 		}
 
 		$comments = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_approved <> 'spam'", $post->ID ) );
 		foreach ( $comments as $comment ) {
-			$meta          = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->commentmeta WHERE comment_id = %d", $comment->comment_ID ) );
-			$meta          = $meta ? $meta : array();
-			$comment->meta = $meta;
+			$comment->meta = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->commentmeta WHERE comment_id = %d", $comment->comment_ID ) ) ?: [];
 		}
 		return $comments;
 	}
