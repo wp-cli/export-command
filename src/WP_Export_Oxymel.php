@@ -11,8 +11,6 @@ class WP_Export_Oxymel extends Oxymel {
 	public function optional_cdata( $tag_name, $contents ) {
 		if ( $contents ) {
 			$this->$tag_name->contains->cdata( $contents )->end;
-		} elseif ( is_string( $tag_name ) && $contents ) {
-
 		}
 		return $this;
 	}
