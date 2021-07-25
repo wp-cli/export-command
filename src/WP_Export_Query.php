@@ -387,11 +387,11 @@ class WP_Export_Query {
 		$meta_for_export = [];
 		$meta_from_db    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE post_id = %d", $post->ID ) );
 		foreach ( $meta_from_db as $meta ) {
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
-			if ( apply_filters( 'wxr_export_skip_postmeta', false, $meta->meta_key, $meta ) ) {
+			if ( '_edit_lock' === $meta->meta_key ) {
 				continue;
 			}
-			if ( in_array( $meta->meta_key, [ '_edit_lock', '_wp_attachment_metadata', '_wp_attached_file' ], true ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
+			if ( apply_filters( 'wxr_export_skip_postmeta', false, $meta->meta_key, $meta ) ) {
 				continue;
 			}
 			$meta_for_export[] = $meta;
