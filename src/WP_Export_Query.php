@@ -34,7 +34,13 @@ class WP_Export_Query {
 	public $missing_parents = false;
 
 	public function __construct( $filters = [] ) {
-		$this->filters  = wp_parse_args( $filters, self::$defaults );
+		$this->filters = wp_parse_args( $filters, self::$defaults );
+
+		$user = $this->find_user_from_any_object( $this->filters['author'] );
+		if ( $user && ! is_wp_error( $user ) ) {
+			$this->author = $user;
+		}
+
 		$this->post_ids = $this->calculate_post_ids();
 	}
 
@@ -66,6 +72,13 @@ class WP_Export_Query {
 
 	public function authors() {
 		global $wpdb;
+
+		// If we're filtering by a specific author, we only need to include that
+		// author's user object, and no other users.
+		if ( is_object( $this->author ) && property_exists( $this->author, 'ID' ) ) {
+			return [ $this->author ];
+		}
+
 		$authors    = [];
 		$author_ids = (array) $wpdb->get_col( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status != 'auto-draft'" );
 		foreach ( $author_ids as $author_id ) {
@@ -223,12 +236,9 @@ class WP_Export_Query {
 
 	private function author_where() {
 		global $wpdb;
-		$user = $this->find_user_from_any_object( $this->filters['author'] );
-		if ( ! $user || is_wp_error( $user ) ) {
-			return;
+		if ( is_object( $this->author ) && property_exists( $this->author, 'ID' ) ) {
+			$this->wheres[] = $wpdb->prepare( 'p.post_author = %d', $this->author->ID );
 		}
-		$this->author   = $user;
-		$this->wheres[] = $wpdb->prepare( 'p.post_author = %d', $user->ID );
 	}
 
 	private function start_date_where() {
