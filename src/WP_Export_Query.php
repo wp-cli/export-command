@@ -34,7 +34,7 @@ class WP_Export_Query {
 	public $missing_parents = false;
 
 	public function __construct( $filters = [] ) {
-		$this->filters  = wp_parse_args( $filters, self::$defaults );
+		$this->filters = wp_parse_args( $filters, self::$defaults );
 
 		$user = $this->find_user_from_any_object( $this->filters['author'] );
 		if ( $user && ! is_wp_error( $user ) ) {
