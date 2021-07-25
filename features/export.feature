@@ -736,52 +736,36 @@ Feature: Export content.
 
   Scenario: Export individual post with attachments
     Given a WP install
-
-    When I run `wp plugin install wordpress-importer --activate`
-    Then STDOUT should contain:
-      """
-      Success:
-      """
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp site empty --yes`
 
     When I run `wp post generate --count=10`
     And I run `wp post list --format=count`
     Then STDOUT should be:
       """
-      11
+      10
       """
 
     When I run `wp post create --post_title='Post with attachment to export' --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_ATTACHMENT_POST_ID}
 
-    When I run `wp post create --post_type=attachment --porcelain`
+    When I run `wp media import 'http://wp-cli.org/behat-data/codeispoetry.png' --post_id={EXPORT_ATTACHMENT_POST_ID} --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_ATTACHMENT_ID}
-
-    When I run `wp post update {EXPORT_ATTACHMENT_ID} --post_parent={EXPORT_ATTACHMENT_POST_ID} --porcelain`
-    Then STDOUT should contain:
-      """
-      Success: Updated post {EXPORT_ATTACHMENT_ID}
-      """
 
     When I run `wp post create --post_title='Post with attachment to ignore' --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {IGNORE_ATTACHMENT_POST_ID}
 
-    When I run `wp post create --post_type=attachment --porcelain`
+    When I run `wp media import 'http://wp-cli.org/behat-data/white-150-square.jpg' --post_id={IGNORE_ATTACHMENT_POST_ID} --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {IGNORE_ATTACHMENT_ID}
-
-    When I run `wp post update {IGNORE_ATTACHMENT_ID} --post_parent={IGNORE_ATTACHMENT_POST_ID} --porcelain`
-    Then STDOUT should contain:
-      """
-      Success: Updated post {IGNORE_ATTACHMENT_ID}
-      """
 
     When I run `wp post list --post_type=post --format=count`
     Then STDOUT should be:
       """
-      13
+      12
       """
 
     When I run `wp post list --post_type=attachment --format=count`
@@ -804,6 +788,26 @@ Feature: Export content.
       """
       <wp:post_id>{EXPORT_ATTACHMENT_ID}</wp:post_id>
       """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:meta_key>_wp_attachment_metadata</wp:meta_key>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      codeispoetry.png";s:5:"sizes"
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:meta_key>_wp_attached_file</wp:meta_key>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      codeispoetry.png]]></wp:meta_value>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:meta_key>_edit_lock</wp:meta_key>
+      """
     And the {EXPORT_FILE} file should not contain:
       """
       <wp:post_id>{IGNORE_ATTACHMENT_POST_ID}</wp:post_id>
@@ -811,6 +815,14 @@ Feature: Export content.
     And the {EXPORT_FILE} file should not contain:
       """
       <wp:post_id>{IGNORE_ATTACHMENT_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      white-150-square.jpg]]></wp:meta_value>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      white-150-square.jpg";s:5:"sizes"
       """
 
   Scenario: Export categories, tags and terms
