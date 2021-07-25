@@ -335,6 +335,88 @@ Feature: Export content.
       Pear Post
       """
 
+  Scenario: Export posts from a given author
+    Given a WP install
+    And I run `wp site empty --yes`
+    And I run `wp plugin install wordpress-importer --activate`
+
+    When I run `wp user create john john.doe@example.com --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {JOHN_USER_ID}
+
+    When I run `wp user create jane jane.doe@example.com --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {JANE_USER_ID}
+
+    When I run `wp post create --post_type=post --post_title='Post by John' --post_author={JOHN_USER_ID} --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {JOHN_POST_ID}
+
+    When I run `wp post create --post_type=post --post_title='Post by Jane' --post_author={JANE_USER_ID} --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {JANE_POST_ID}
+
+    When I run `wp export --post_type=post --author={JANE_USER_ID}`
+    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then the {EXPORT_FILE} file should contain:
+      """
+      jane.doe@example.com
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      Post by Jane
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      john.doe@example.com
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      Post by John
+      """
+
+    When I run `wp site empty --yes`
+    Then STDOUT should not be empty
+
+    When I run `wp user delete {JOHN_USER_ID} {JANE_USER_ID} --yes`
+    Then STDOUT should contain:
+      """
+      Success: Removed user {JOHN_USER_ID} from http://example.com.
+      """
+    And STDOUT should contain:
+      """
+      Success: Removed user {JANE_USER_ID} from http://example.com.
+      """
+
+    When I run `wp post list --post_type=post --format=count`
+    Then STDOUT should be:
+      """
+      0
+      """
+
+    When I run `wp import {EXPORT_FILE} --authors=create`
+    Then STDOUT should not be empty
+
+    When I run `wp post list --post_type=post`
+    Then STDOUT should contain:
+      """
+      Post by Jane
+      """
+    And STDOUT should not contain:
+      """
+      Post by John
+      """
+
+    When I run `wp user list`
+    Then STDOUT should contain:
+      """
+      jane.doe@example.com
+      """
+    And STDOUT should not contain:
+      """
+      john.doe@example.com
+      """
+
   Scenario: Export posts should include user information
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
