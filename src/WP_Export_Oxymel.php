@@ -2,14 +2,14 @@
 
 class WP_Export_Oxymel extends Oxymel {
 	public function optional( $tag_name, $contents ) {
-		if ( ( property_exists( $this, $tag_name ) || method_exists( $this, $tag_name ) ) && $contents ) {
+		if ( $contents ) {
 			$this->$tag_name( $contents );
 		}
 		return $this;
 	}
 
 	public function optional_cdata( $tag_name, $contents ) {
-		if ( property_exists( $this, $tag_name ) && is_object( $this->$tag_name ) && $contents ) {
+		if ( $contents ) {
 			$this->$tag_name->contains->cdata( $contents )->end;
 		}
 		return $this;
