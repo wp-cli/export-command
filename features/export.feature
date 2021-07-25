@@ -721,3 +721,145 @@ Feature: Export content.
       """
       <wp:post_id>{IGNORE_ATTACHMENT_ID}</wp:post_id>
       """
+
+  Scenario: Export categories, tags and terms
+    Given a WP install
+    And a wp-content/mu-plugins/register-region-taxonomy.php file:
+      """
+      <?php
+      function wp_cli_region_taxonomy() {
+          register_taxonomy( 'region', 'post', [
+              'label'        => 'Region',
+              'rewrite'      => [ 'slug' => 'region' ],
+              'hierarchical' => true,
+          ] );
+      }
+      add_action( 'init', 'wp_cli_region_taxonomy' );
+      """
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp site empty --yes`
+
+    When I run `wp term create category News --description="A news article" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_CATEGORY_ID}
+
+    When I run `wp term create post_tag Tech --description="Technology-related" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_TAG_ID}
+
+    When I run `wp term create region Europe --description="Concerns Europe" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_TERM_ID}
+
+    When I run `wp post create --post_title='Breaking News' --post_category={EXPORT_CATEGORY_ID} --tags_input={EXPORT_TAG_ID} --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_POST_ID}
+
+    When I run `wp post term add {EXPORT_POST_ID} region {EXPORT_TERM_ID}`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp export --post__in={EXPORT_POST_ID}`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_id>{EXPORT_POST_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:category>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:term_id>{EXPORT_CATEGORY_ID}</wp:term_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:cat_name><![CDATA[News]]></wp:cat_name>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:term_id>{EXPORT_TAG_ID}</wp:term_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag_name><![CDATA[Tech]]></wp:tag_name>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:term>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:term_id>{EXPORT_TERM_ID}</wp:term_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:term_name><![CDATA[Europe]]></wp:term_name>
+      """
+
+    When I run `wp site empty --yes`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp post list`
+    Then STDOUT should not contain:
+      """
+      Breaking News
+      """
+
+    When I run `wp term list category`
+    Then STDOUT should not contain:
+      """
+      News
+      """
+
+    When I run `wp term list post_tag`
+    Then STDOUT should not contain:
+      """
+      Tech
+      """
+
+    When I run `wp term list region`
+    Then STDOUT should not contain:
+      """
+      Europe
+      """
+
+    When I run `wp import {EXPORT_FILE} --authors=skip`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp post list`
+    Then STDOUT should contain:
+      """
+      Breaking News
+      """
+
+    When I run `wp term list category`
+    Then STDOUT should contain:
+      """
+      News
+      """
+
+    When I run `wp term list post_tag`
+    Then STDOUT should contain:
+      """
+      Tech
+      """
+
+    When I run `wp term list region`
+    Then STDOUT should contain:
+      """
+      Europe
+      """
