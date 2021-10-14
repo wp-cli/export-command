@@ -8,9 +8,9 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	private $after_posts_xml;
 
 	private $f;
-	private $next_file_number  = 0;
-	private $current_file_size = 0;
-	private $available_sections = array(
+	private $next_file_number    = 0;
+	private $current_file_size   = 0;
+	private $available_sections  = array(
 		'header',
 		'site_metadata',
 		'authors',
@@ -84,7 +84,7 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 		$this->current_file_size = 0;
 
 		$this->write( $this->before_posts_xml );
-		if ( $this->next_file_number === 1 && ! empty( $this->subsequent_sections ) ) {
+		if ( 1 === $this->next_file_number && ! empty( $this->subsequent_sections ) ) {
 			$this->before_posts_xml = $this->formatter->before_posts( $this->subsequent_sections );
 		}
 	}

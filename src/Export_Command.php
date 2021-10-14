@@ -480,7 +480,7 @@ class Export_Command extends WP_CLI_Command {
 			return true;
 		}
 
-		$separator = false !== stripos( $include_once, ' ' ) ? ' ' : ',';
+		$separator    = false !== stripos( $include_once, ' ' ) ? ' ' : ',';
 		$include_once = array_filter( array_unique( array_map( 'strtolower', explode( $separator, $include_once ) ) ) );
 		$include_once = array_intersect( $include_once, array( 'categories', 'tags', 'nav_menu_terms', 'custom_taxonomies_terms' ) );
 		if ( empty( $include_once ) ) {
