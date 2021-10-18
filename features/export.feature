@@ -985,3 +985,13 @@ Feature: Export content.
       """
       Europe
       """
+
+Scenario: A blog with a title with size more than 99 bytes.
+    Given a WP install
+
+    When I run `wp option update blogname "A blog with an exceedingly long title (125 bytes), which would be absolutely trimmed to 99 bytes by the wp cli export command"`
+    And I run `wp export`
+    Then STDOUT should contain:
+      """
+      ablogwithanexceedinglylongtitle125byteswhichwouldbeabsolutelytrimmedto.wordpress.2021-10-18.000.xml
+      """

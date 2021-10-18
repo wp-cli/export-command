@@ -207,9 +207,34 @@ class Export_Command extends WP_CLI_Command {
 
 	private static function get_filename_template( $filename_format ) {
 		$sitename = sanitize_key( get_bloginfo( 'name' ) );
+
 		if ( empty( $sitename ) ) {
 			$sitename = 'site';
 		}
+
+		/**
+		 * Get the potential filename.
+		 */
+		$potential_file_name = str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format );
+
+		/**
+		 * Get the length of the potential file name.
+		 */
+		$potential_file_name_size = strlen( $potential_file_name );
+
+		/**
+		 * If the potential filename size exceeds 99 bytes, then remove the extra bytes.
+		 */
+		if ( $potential_file_name_size > 99 ) {
+			$extra_bytes = $potential_file_name_size - 99;
+			$sitename_size = strlen( $sitename );
+
+			/**
+			 * Remove the extra bytes from the sitename.
+			 */
+			$sitename = substr( $sitename, 0, ( $sitename_size - $extra_bytes ) + 1 );
+		}
+
 		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
