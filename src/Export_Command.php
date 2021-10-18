@@ -215,7 +215,7 @@ class Export_Command extends WP_CLI_Command {
 		/**
 		 * Get the potential filename.
 		 */
-		$potential_file_name = str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format );
+		$potential_file_name = str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 
 		/**
 		 * Get the length of the potential file name.
@@ -226,7 +226,7 @@ class Export_Command extends WP_CLI_Command {
 		 * If the potential filename size exceeds 99 bytes, then remove the extra bytes.
 		 */
 		if ( $potential_file_name_size > 99 ) {
-			$extra_bytes = $potential_file_name_size - 99;
+			$extra_bytes   = $potential_file_name_size - 99;
 			$sitename_size = strlen( $sitename );
 
 			/**
