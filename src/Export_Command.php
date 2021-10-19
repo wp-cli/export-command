@@ -232,7 +232,7 @@ class Export_Command extends WP_CLI_Command {
 			/**
 			 * Remove the extra bytes from the sitename.
 			 */
-			$sitename = substr( $sitename, 0, ( $sitename_size - $extra_bytes ) + 1 );
+			$sitename = substr( $sitename, 0, ( $sitename_size - $extra_bytes ) );
 		}
 
 		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
