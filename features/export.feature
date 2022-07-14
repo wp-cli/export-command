@@ -813,7 +813,7 @@ Feature: Export content.
       """
     And the {EXPORT_FILE} file should contain:
       """
-      codeispoetry.png";s:5:"sizes"
+      codeispoetry.png";s:
       """
     And the {EXPORT_FILE} file should contain:
       """
@@ -841,7 +841,7 @@ Feature: Export content.
       """
     And the {EXPORT_FILE} file should not contain:
       """
-      white-150-square.jpg";s:5:"sizes"
+      white-150-square.jpg";s:
       """
 
   Scenario: Export categories, tags and terms
