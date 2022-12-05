@@ -652,12 +652,46 @@ Feature: Export content.
   Scenario: Export splitting the dump
     Given a WP install
 
-    When I run `wp export --max_file_size=0.0001`
+    When I run `wp export --max_file_size=0.0001 --filename_format='{n}.xml'`
     Then STDOUT should contain:
       """
       001.xml
       """
     And STDERR should be empty
+
+    When I run `cat 000.xml`
+    Then STDOUT should contain:
+      """
+      <wp:category>
+      """
+
+    When I run `cat 001.xml`
+    Then STDOUT should contain:
+      """
+      <wp:category>
+      """
+
+  Scenario: Export splitting the dump with --include_once
+    Given a WP install
+
+    When I run `wp export --max_file_size=0.0001 --include_once=categories --filename_format='{n}.xml'`
+    Then STDOUT should contain:
+      """
+      001.xml
+      """
+    And STDERR should be empty
+
+    When I run `cat 000.xml`
+    Then STDOUT should contain:
+      """
+      <wp:category>
+      """
+
+    When I run `cat 001.xml`
+    Then STDOUT should not contain:
+      """
+      <wp:category>
+      """
 
   Scenario: Export without splitting the dump
     Given a WP install
