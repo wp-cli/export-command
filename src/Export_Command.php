@@ -57,6 +57,14 @@ class Export_Command extends WP_CLI_Command {
 	 * default: 15
 	 * ---
 	 *
+	 * [--filename_format=<format>]
+	 * : Use a custom format for export filenames. Defaults to '{site}.wordpress.{date}.{n}.xml'.
+	 *
+	 * [--include_once=<before_posts>]
+	 * : Include specified export section only in the first export file. Valid options
+	 * are categories, tags, nav_menu_items, custom_taxonomies_terms. Separate multiple
+	 * sections with a comma. Defaults to none.
+	 *
 	 * ## FILTERS
 	 *
 	 * [--start_date=<date>]
@@ -97,14 +105,6 @@ class Export_Command extends WP_CLI_Command {
 	 *
 	 * [--post_status=<status>]
 	 * : Export only posts with this status.
-	 *
-	 * [--filename_format=<format>]
-	 * : Use a custom format for export filenames. Defaults to '{site}.wordpress.{date}.{n}.xml'.
-	 *
-	 * [--include_once=<before_posts>]
-	 * : Include specified export section only in the first export file. Valid options
-	 * are categories, tags, nav_menu_items, custom_taxonomies_terms. Separate multiple
-	 * sections with a comma. Defaults to none.
 	 *
 	 * ## EXAMPLES
 	 *
