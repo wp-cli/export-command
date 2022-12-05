@@ -8,8 +8,19 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	private $after_posts_xml;
 
 	private $f;
-	private $next_file_number  = 0;
-	private $current_file_size = 0;
+	private $next_file_number    = 0;
+	private $current_file_size   = 0;
+	private $available_sections  = array(
+		'header',
+		'site_metadata',
+		'authors',
+		'categories',
+		'tags',
+		'nav_menu_terms',
+		'custom_taxonomies_terms',
+		'rss2_head_action',
+	);
+	private $subsequent_sections = array();
 
 	public function __construct( $formatter, $writer_args = [] ) {
 		parent::__construct( $formatter );
@@ -26,6 +37,12 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 			$this->max_file_size = WP_CLI_EXPORT_COMMAND_NO_SPLIT;
 		} else {
 			$this->max_file_size = $writer_args['max_file_size'] * MB_IN_BYTES;
+		}
+
+		// Filter and handle condition where subsequent export files should not contain
+		// all of the export sections
+		if ( is_array( $writer_args['include_once'] ) && ! empty( $writer_args['include_once'] ) ) {
+			$this->subsequent_sections = array_diff( $this->available_sections, $writer_args['include_once'] );
 		}
 
 		$this->destination_directory = $writer_args['destination_directory'];
@@ -65,7 +82,11 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Possibly used by third party extension.
 		do_action( 'wp_export_new_file', $file_path );
 		$this->current_file_size = 0;
+
 		$this->write( $this->before_posts_xml );
+		if ( 1 === $this->next_file_number && ! empty( $this->subsequent_sections ) ) {
+			$this->before_posts_xml = $this->formatter->before_posts( $this->subsequent_sections );
+		}
 	}
 
 	private function close_current_file() {
