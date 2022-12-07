@@ -985,3 +985,34 @@ Feature: Export content.
       """
       Europe
       """
+
+  Scenario: Export posts should not include oembed_cache posts user information
+    Given a WP install
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp user create user user@user.com --role=editor --display_name="Test User"`
+    And I run `wp user create oembed_cache_user oembed_cache@user.com --role=editor --display_name="Oembed User"`
+    And I run `wp post generate --post_type=post --count=10 --post_author=user`
+    And I run `wp post generate --post_type=oembed_cache --count=1 --post_author=oembed_cache_user`
+
+    When I run `wp export`
+    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then the {EXPORT_FILE} file should contain:
+      """
+      <wp:author_display_name><![CDATA[Test User]]></wp:author_display_name>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:author_display_name><![CDATA[Oembed User]]></wp:author_display_name>
+      """
+    When I run `wp site empty --yes`
+    And I run `wp user list --field=user_login | xargs -n 1 wp user delete --yes`
+    Then STDOUT should not be empty
+
+    When I run `wp import {EXPORT_FILE} --authors=create`
+    Then STDOUT should not be empty
+
+    When I run `wp user get user --field=display_name`
+    Then STDOUT should be:
+      """
+      Test User
+      """
