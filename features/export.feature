@@ -986,6 +986,7 @@ Feature: Export content.
       Europe
       """
 
+  @require-wp-5.2
   Scenario: Export posts should not include oembed_cache posts user information
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
