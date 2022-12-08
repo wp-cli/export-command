@@ -10,7 +10,7 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 ## Using
 
 ~~~
-wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--with_attachments] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name|id>] [--post_status=<status>] [--filename_format=<format>]
+wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--filename_format=<format>] [--include_once=<before_posts>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--with_attachments] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name|id>] [--post_status=<status>]
 ~~~
 
 Generates one or more WXR files containing authors, terms, posts,
@@ -34,6 +34,14 @@ comments, and attachments. WXR files do not include site configuration
 		---
 		default: 15
 		---
+
+	[--filename_format=<format>]
+		Use a custom format for export filenames. Defaults to '{site}.wordpress.{date}.{n}.xml'.
+
+	[--include_once=<before_posts>]
+		Include specified export section only in the first export file. Valid options
+		are categories, tags, nav_menu_items, custom_taxonomies_terms. Separate multiple
+		sections with a comma. Defaults to none.
 
 **FILTERS**
 
@@ -75,9 +83,6 @@ comments, and attachments. WXR files do not include site configuration
 
 	[--post_status=<status>]
 		Export only posts with this status.
-
-	[--filename_format=<format>]
-		Use a custom format for export filenames. Defaults to '{site}.wordpress.{date}.{n}.xml'.
 
 **EXAMPLES**
 
