@@ -682,8 +682,19 @@ Feature: Export content.
       <wp:category>
       """
 
-  Scenario: Export splitting the dump with --include_once
+  Scenario: Export splitting the dump with a bad --include_once value
     Given a WP install
+    And I run `wp term generate post_tag --count=1`
+
+    When I try `wp export --max_file_size=0.0001 --include_once=invalid --filename_format='{n}.xml'`
+    Then STDERR should contain:
+      """
+      Warning: include_once should be comma-separated values for optional before_posts sections
+      """
+
+  Scenario: Export splitting the dump with a single --include_once value
+    Given a WP install
+    And I run `wp term generate post_tag --count=1`
 
     When I run `wp export --max_file_size=0.0001 --include_once=categories --filename_format='{n}.xml'`
     Then STDOUT should contain:
@@ -697,11 +708,50 @@ Feature: Export content.
       """
       <wp:category>
       """
+    And STDOUT should contain:
+      """
+      <wp:tag>
+      """
 
     When I run `cat 001.xml`
     Then STDOUT should not contain:
       """
       <wp:category>
+      """
+    And STDOUT should contain:
+      """
+      <wp:tag>
+      """
+
+  Scenario: Export splitting the dump with multiple --include_once values
+    Given a WP install
+    And I run `wp term generate post_tag --count=1`
+
+    When I run `wp export --max_file_size=0.0001 --include_once=categories,tags --filename_format='{n}.xml'`
+    Then STDOUT should contain:
+      """
+      001.xml
+      """
+    And STDERR should be empty
+
+    When I run `cat 000.xml`
+    Then STDOUT should contain:
+      """
+      <wp:category>
+      """
+    And STDOUT should contain:
+      """
+      <wp:tag>
+      """
+
+    When I run `cat 001.xml`
+    Then STDOUT should not contain:
+      """
+      <wp:category>
+      """
+    And STDOUT should not contain:
+      """
+      <wp:tag>
       """
 
   Scenario: Export without splitting the dump
