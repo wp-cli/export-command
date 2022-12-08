@@ -80,7 +80,7 @@ class WP_Export_Query {
 		}
 
 		$authors    = [];
-		$author_ids = (array) $wpdb->get_col( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status != 'auto-draft'" );
+		$author_ids = (array) $wpdb->get_col( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status != 'auto-draft' AND post_type != 'oembed_cache'" );
 		foreach ( $author_ids as $author_id ) {
 			$authors[] = get_userdata( $author_id );
 		}
