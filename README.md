@@ -63,7 +63,7 @@ comments, and attachments. WXR files do not include site configuration
 		with a comma. Defaults to none.
 
 	[--post__in=<pid>]
-		Export all posts specified as a comma- or space-separated list of IDs.
+		Export all posts specified as a comma-separated or space-separated list of IDs.
 		Post's attachments won't be exported unless --with_attachments is specified.
 
 	[--with_attachments]
