@@ -85,7 +85,7 @@ class Export_Command extends WP_CLI_Command {
 	 * with a comma. Defaults to none.
 	 *
 	 * [--post__in=<pid>]
-	 * : Export all posts specified as a comma- or space-separated list of IDs.
+	 * : Export all posts specified as a comma-separated or space-separated list of IDs.
 	 * Post's attachments won't be exported unless --with_attachments is specified.
 	 *
 	 * [--with_attachments]
@@ -345,7 +345,7 @@ class Export_Command extends WP_CLI_Command {
 		$separator = false !== stripos( $post__in, ' ' ) ? ' ' : ',';
 		$post__in  = array_filter( array_unique( array_map( 'intval', explode( $separator, $post__in ) ) ) );
 		if ( empty( $post__in ) ) {
-			WP_CLI::warning( 'post__in should be comma-separated post IDs.' );
+			WP_CLI::warning( 'post__in should be comma-separated or space-separated post IDs.' );
 			return false;
 		}
 		// New exporter uses a different argument.
