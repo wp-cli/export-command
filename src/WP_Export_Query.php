@@ -20,7 +20,7 @@ class WP_Export_Query {
 		'start_id'           => null,
 		'max_num_posts'      => null,
 		'category'           => null,
-		'allow_orphan_terms' => null
+		'allow_orphan_terms' => null,
 	];
 
 	private $post_ids;
@@ -122,8 +122,8 @@ class WP_Export_Query {
 		}
 		$custom_taxonomies = get_taxonomies( [ '_builtin' => false ] );
 		$custom_terms      = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
-		$custom_terms = $this->process_orphaned_terms( $custom_terms );
-		$custom_terms = self::topologically_sort_terms( $custom_terms );
+		$custom_terms      = $this->process_orphaned_terms( $custom_terms );
+		$custom_terms      = self::topologically_sort_terms( $custom_terms );
 		return $custom_terms;
 	}
 

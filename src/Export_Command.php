@@ -148,7 +148,7 @@ class Export_Command extends WP_CLI_Command {
 			'max_file_size'      => 15,
 			'filename_format'    => '{site}.wordpress.{date}.{n}.xml',
 			'include_once'       => null,
-			'allow_orphan_terms' => null
+			'allow_orphan_terms' => null,
 		];
 
 		if ( ! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
