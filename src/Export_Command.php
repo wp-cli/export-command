@@ -65,6 +65,9 @@ class Export_Command extends WP_CLI_Command {
 	 * are categories, tags, nav_menu_items, custom_taxonomies_terms. Separate multiple
 	 * sections with a comma. Defaults to none.
 	 *
+	 * [--allow_orphan_terms]
+	 * : Don't throw an exception when orphaned terms are found.
+	 *
 	 * ## FILTERS
 	 *
 	 * [--start_date=<date>]
@@ -128,23 +131,24 @@ class Export_Command extends WP_CLI_Command {
 	 */
 	public function __invoke( $_, $assoc_args ) {
 		$defaults = [
-			'dir'               => null,
-			'stdout'            => false,
-			'start_date'        => null,
-			'end_date'          => null,
-			'post_type'         => null,
-			'post_type__not_in' => null,
-			'max_num_posts'     => null,
-			'author'            => null,
-			'category'          => null,
-			'post_status'       => null,
-			'post__in'          => null,
-			'with_attachments'  => true, // or FALSE if user requested some post__in
-			'start_id'          => null,
-			'skip_comments'     => null,
-			'max_file_size'     => 15,
-			'filename_format'   => '{site}.wordpress.{date}.{n}.xml',
-			'include_once'      => null,
+			'dir'                => null,
+			'stdout'             => false,
+			'start_date'         => null,
+			'end_date'           => null,
+			'post_type'          => null,
+			'post_type__not_in'  => null,
+			'max_num_posts'      => null,
+			'author'             => null,
+			'category'           => null,
+			'post_status'        => null,
+			'post__in'           => null,
+			'with_attachments'   => true, // or FALSE if user requested some post__in
+			'start_id'           => null,
+			'skip_comments'      => null,
+			'max_file_size'      => 15,
+			'filename_format'    => '{site}.wordpress.{date}.{n}.xml',
+			'include_once'       => null,
+			'allow_orphan_terms' => null
 		];
 
 		if ( ! empty( $assoc_args['stdout'] ) && ( ! empty( $assoc_args['dir'] ) || ! empty( $assoc_args['filename_format'] ) ) ) {
@@ -490,6 +494,19 @@ class Export_Command extends WP_CLI_Command {
 
 		$this->include_once = $include_once;
 
+		return true;
+	}
+
+	private function check_allow_orphan_terms( $allow_orphan_terms ) {
+		if ( null === $allow_orphan_terms ) {
+			return true;
+		}
+
+		if ( 0 !== (int) $allow_orphan_terms && 1 !== (int) $allow_orphan_terms ) {
+			WP_CLI::warning( 'allow_orphan_terms needs to be 0 (no) or 1 (yes).' );
+			return false;
+		}
+		$this->export_args['allow_orphan_terms'] = $allow_orphan_terms;
 		return true;
 	}
 }

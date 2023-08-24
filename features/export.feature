@@ -1148,3 +1148,26 @@ Feature: Export content.
       """
       Test User
       """
+
+  Scenario: Allow export to proceed when orphaned terms are found
+    Given a WP install
+    And I run `wp term create category orphan --parent=1`
+    And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
+
+    When I run `wp export --allow_orphan_terms`
+    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then the {EXPORT_FILE} file should contain:
+      """
+      <wp:category_nicename>orphan</wp:category_nicename>
+      """
+
+  Scenario: Throw exception when orphaned terms are found
+    Given a WP install
+    And I run `wp term create category orphan --parent=1`
+    And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
+
+    When I try `wp export`
+    Then STDERR should contain:
+      """
+      Error: Term is missing a parent
+      """

@@ -43,6 +43,9 @@ comments, and attachments. WXR files do not include site configuration
 		are categories, tags, nav_menu_items, custom_taxonomies_terms. Separate multiple
 		sections with a comma. Defaults to none.
 
+	[--allow_orphan_terms]
+		Ignore orphaned terms and set parent_id to 0 instead of throwing an exception.
+
 **FILTERS**
 
 	[--start_date=<date>]
