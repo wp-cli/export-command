@@ -475,20 +475,20 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
-	private function check_include_once( $include_once ) {
-		if ( null === $include_once ) {
+	private function check_include_once( $once ) {
+		if ( null === $once ) {
 			return true;
 		}
 
-		$separator    = false !== stripos( $include_once, ' ' ) ? ' ' : ',';
-		$include_once = array_filter( array_unique( array_map( 'strtolower', explode( $separator, $include_once ) ) ) );
-		$include_once = array_intersect( $include_once, array( 'categories', 'tags', 'nav_menu_terms', 'custom_taxonomies_terms' ) );
-		if ( empty( $include_once ) ) {
+		$separator = false !== stripos( $once, ' ' ) ? ' ' : ',';
+		$once      = array_filter( array_unique( array_map( 'strtolower', explode( $separator, $once ) ) ) );
+		$once      = array_intersect( $once, array( 'categories', 'tags', 'nav_menu_terms', 'custom_taxonomies_terms' ) );
+		if ( empty( $once ) ) {
 			WP_CLI::warning( 'include_once should be comma-separated values for optional before_posts sections.' );
 			return false;
 		}
 
-		$this->include_once = $include_once;
+		$this->include_once = $once;
 
 		return true;
 	}
