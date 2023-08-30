@@ -87,7 +87,6 @@ COMMENT;
 			)
 				->open_channel
 				->to_string();
-
 	}
 
 	public function site_metadata() {

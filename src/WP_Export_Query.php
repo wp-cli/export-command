@@ -121,9 +121,10 @@ class WP_Export_Query {
 			return [];
 		}
 		$custom_taxonomies = get_taxonomies( [ '_builtin' => false ] );
-		$custom_terms      = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
-		$custom_terms      = $this->process_orphaned_terms( $custom_terms );
-		$custom_terms      = self::topologically_sort_terms( $custom_terms );
+		// phpcs:ignore WordPress.WP.DeprecatedParameters.Get_termsParam2Found -- Deprecated, but we need to support older versions of WordPress.
+		$custom_terms = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
+		$custom_terms = $this->process_orphaned_terms( $custom_terms );
+		$custom_terms = self::topologically_sort_terms( $custom_terms );
 		return $custom_terms;
 	}
 
@@ -306,7 +307,7 @@ class WP_Export_Query {
 			return [];
 		}
 		$attachment_ids = [];
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assigment is part of the break condition.
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assigment is part of the break condition.
 		while ( $batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK ) ) {
 			$post_parent_condition = _wp_export_build_IN_condition( 'post_parent', $batch_of_post_ids );
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Escaped in wpcli_export_build_in_condition() function.
@@ -345,7 +346,7 @@ class WP_Export_Query {
 
 	private static function topologically_sort_terms( $terms ) {
 		$sorted = [];
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- assignment is used as break condition.
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- assignment is used as break condition.
 		while ( $term = array_shift( $terms ) ) {
 			if ( 0 === (int) $term->parent || isset( $sorted[ $term->parent ] ) ) {
 				$sorted[ $term->term_id ] = $term;
@@ -432,4 +433,3 @@ class WP_Export_Query {
 		return $comments;
 	}
 }
-
