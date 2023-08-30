@@ -24,8 +24,8 @@ class WP_Post_IDs_Iterator implements Iterator {
 	}
 
 	public function next() {
-		$this->index_in_results++;
-		$this->global_index++;
+		++$this->index_in_results;
+		++$this->global_index;
 	}
 
 	public function rewind() {

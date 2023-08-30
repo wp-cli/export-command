@@ -13,7 +13,7 @@ define( 'WP_CLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
  *     # Export posts published by the user between given start and end date
  *     $ wp export --dir=/tmp/ --user=admin --post_type=post --start_date=2011-01-01 --end_date=2011-12-31
  *     Starting export process...
- *     Writing to file /tmp/staging.wordpress.2016-05-24.000.xml
+ *     Writing to file /tmp/staging.WordPress.2016-05-24.000.xml
  *     Success: All done with export.
  *
  * @package wp-cli
@@ -58,7 +58,7 @@ class Export_Command extends WP_CLI_Command {
 	 * ---
 	 *
 	 * [--filename_format=<format>]
-	 * : Use a custom format for export filenames. Defaults to '{site}.wordpress.{date}.{n}.xml'.
+	 * : Use a custom format for export filenames. Defaults to '{site}.WordPress.{date}.{n}.xml'.
 	 *
 	 * [--include_once=<before_posts>]
 	 * : Include specified export section only in the first export file. Valid options
@@ -111,19 +111,19 @@ class Export_Command extends WP_CLI_Command {
 	 *     # Export posts published by the user between given start and end date
 	 *     $ wp export --dir=/tmp/ --user=admin --post_type=post --start_date=2011-01-01 --end_date=2011-12-31
 	 *     Starting export process...
-	 *     Writing to file /tmp/staging.wordpress.2016-05-24.000.xml
+	 *     Writing to file /tmp/staging.WordPress.2016-05-24.000.xml
 	 *     Success: All done with export.
 	 *
 	 *     # Export posts by IDs
 	 *     $ wp export --dir=/tmp/ --post__in=123,124,125
 	 *     Starting export process...
-	 *     Writing to file /tmp/staging.wordpress.2016-05-24.000.xml
+	 *     Writing to file /tmp/staging.WordPress.2016-05-24.000.xml
 	 *     Success: All done with export.
 	 *
 	 *     # Export a random subset of content
 	 *     $ wp export --post__in="$(wp post list --post_type=post --orderby=rand --posts_per_page=8 --format=ids)"
 	 *     Starting export process...
-	 *     Writing to file /var/www/example.com/public_html/staging.wordpress.2016-05-24.000.xml
+	 *     Writing to file /var/www/example.com/public_html/staging.WordPress.2016-05-24.000.xml
 	 *     Success: All done with export.
 	 */
 	public function __invoke( $_, $assoc_args ) {

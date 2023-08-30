@@ -413,4 +413,3 @@ class WP_Export_Query {
 		return $comments;
 	}
 }
-

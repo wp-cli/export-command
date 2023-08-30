@@ -22,4 +22,3 @@ class WP_Export_Oxymel extends Oxymel {
 		return parent::cdata( $text );
 	}
 }
-
