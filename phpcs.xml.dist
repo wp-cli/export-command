@@ -64,7 +64,7 @@
 
 
 	<!-- Exclude the word `wordpress` from being forced into "trademarked" capitalization in the file names. -->
-	<rule ref="WordPress.WP.CapitalPDangit.Misspelled">
+	<rule ref="WordPress.WP.CapitalPDangit.MisspelledInComment">
 		<exclude-pattern>*/src/Export_Command\.php$</exclude-pattern>
 	</rule>
 
