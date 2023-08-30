@@ -120,7 +120,8 @@ class WP_Export_Query {
 			return [];
 		}
 		$custom_taxonomies = get_taxonomies( [ '_builtin' => false ] );
-		$custom_terms      = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
+		// phpcs:ignore WordPress.WP.DeprecatedParameters.Get_termsParam2Found -- Deprecated, but we need to support older versions of WordPress.
+		$custom_terms = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
 		$this->check_for_orphaned_terms( $custom_terms );
 		$custom_terms = self::topologically_sort_terms( $custom_terms );
 		return $custom_terms;
