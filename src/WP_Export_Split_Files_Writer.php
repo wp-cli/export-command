@@ -99,12 +99,11 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 
 	private function next_file_name() {
 		$next_file_name = sprintf( $this->filename_template, $this->next_file_number );
-		$this->next_file_number++;
+		++$this->next_file_number;
 		return $next_file_name;
 	}
 
 	private function next_file_path() {
 		return untrailingslashit( $this->destination_directory ) . DIRECTORY_SEPARATOR . $this->next_file_name();
 	}
-
 }
