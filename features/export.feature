@@ -1152,13 +1152,45 @@ Feature: Export content.
   Scenario: Allow export to proceed when orphaned terms are found
     Given a WP install
     And I run `wp term create category orphan --parent=1`
+    And I run `wp term create category parent`
+    And I run `wp term create category child --parent=3`
+    And I run `wp term create post_tag atag`
+    And I run `wp term create post_tag btag`
+    And I run `wp term create post_tag ctag`
     And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
 
     When I run `wp export --allow_orphan_terms`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
-    Then the {EXPORT_FILE} file should contain:
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should contain:
       """
       <wp:category_nicename>orphan</wp:category_nicename>
+      """
+
+    When I run `wp site empty --yes`
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp import {EXPORT_FILE} --authors=skip`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp term get post_tag atag --by=slug --field=id`
+    Then STDOUT should be a number
+
+    When I run `wp term get post_tag btag --by=slug --field=id`
+    Then STDOUT should be a number
+
+    When I run `wp term get post_tag ctag --by=slug --field=id`
+    Then STDOUT should be a number
+
+    When I run `wp term get category parent --by=slug --field=id`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_CATEGORY_PARENT_ID}
+
+    When I run `wp term get category child --by=slug --field=parent`
+    Then STDOUT should be:
+      """
+      {EXPORT_CATEGORY_PARENT_ID}
       """
 
   Scenario: Throw exception when orphaned terms are found

@@ -380,6 +380,10 @@ class WP_Export_Query {
 			}
 		}
 
+		if ( ! $this->filters['allow_orphan_terms'] ) {
+			return $terms;
+		}
+
 		if ( count( $orphans ) > 0 ) {
 			$terms_return = [];
 			foreach ( $terms as $term ) {

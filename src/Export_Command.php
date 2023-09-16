@@ -66,7 +66,7 @@ class Export_Command extends WP_CLI_Command {
 	 * sections with a comma. Defaults to none.
 	 *
 	 * [--allow_orphan_terms]
-	 * : Don't throw an exception when orphaned terms are found.
+	 * : Export orphaned terms with `parent=0`, instead of throwing an exception.
 	 *
 	 * ## FILTERS
 	 *
