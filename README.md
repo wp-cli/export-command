@@ -10,7 +10,7 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 ## Using
 
 ~~~
-wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--filename_format=<format>] [--include_once=<before_posts>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--with_attachments] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name|id>] [--post_status=<status>]
+wp export [--dir=<dirname>] [--stdout] [--skip_comments] [--max_file_size=<MB>] [--filename_format=<format>] [--include_once=<before_posts>] [--allow_orphan_terms] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post_type__not_in=<post-type>] [--post__in=<pid>] [--with_attachments] [--start_id=<pid>] [--max_num_posts=<num>] [--author=<author>] [--category=<name|id>] [--post_status=<status>]
 ~~~
 
 Generates one or more WXR files containing authors, terms, posts,
@@ -42,6 +42,9 @@ comments, and attachments. WXR files do not include site configuration
 		Include specified export section only in the first export file. Valid options
 		are categories, tags, nav_menu_items, custom_taxonomies_terms. Separate multiple
 		sections with a comma. Defaults to none.
+
+	[--allow_orphan_terms]
+		Export orphaned terms with `parent=0`, instead of throwing an exception.
 
 **FILTERS**
 

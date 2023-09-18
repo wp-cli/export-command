@@ -996,6 +996,10 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_CATEGORY_ID}
 
+    When I run `wp term create category National --parent={EXPORT_CATEGORY_ID} --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_SUBCATEGORY_ID}
+
     When I run `wp term create post_tag Tech --description="Technology-related" --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_TAG_ID}
@@ -1027,6 +1031,10 @@ Feature: Export content.
     And the {EXPORT_FILE} file should contain:
       """
       <wp:term_id>{EXPORT_CATEGORY_ID}</wp:term_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:category_parent>news</wp:category_parent>
       """
     And the {EXPORT_FILE} file should contain:
       """
@@ -1104,6 +1112,20 @@ Feature: Export content.
       """
       News
       """
+    And STDOUT should contain:
+      """
+      National
+      """
+
+    When I run `wp term get category news --by=slug --field=id`
+    Then STDOUT should be a number
+    And save STDOUT as {IMPORT_CATEGORY_ID}
+
+    When I run `wp term get category national --by=slug --field=parent`
+    Then STDOUT should be:
+      """
+      {IMPORT_CATEGORY_ID}
+      """
 
     When I run `wp term list post_tag`
     Then STDOUT should contain:
@@ -1147,4 +1169,70 @@ Feature: Export content.
     Then STDOUT should be:
       """
       Test User
+      """
+
+  @require-wp-5.2
+  Scenario: Allow export to proceed when orphaned terms are found
+    Given a WP install
+    And I run `wp term create category orphan --parent=1`
+    And I run `wp term create category parent`
+    And I run `wp term create category child --parent=3`
+    And I run `wp term create post_tag atag`
+    And I run `wp term create post_tag btag`
+    And I run `wp term create post_tag ctag`
+    And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
+
+    When I run `wp export --allow_orphan_terms`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:category_nicename>orphan</wp:category_nicename>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag_slug>atag</wp:tag_slug>
+      """
+
+    When I run `wp site empty --yes`
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp import {EXPORT_FILE} --authors=skip`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp term get post_tag atag --by=slug --field=id`
+    Then STDOUT should be a number
+
+    When I run `wp term get post_tag btag --by=slug --field=id`
+    Then STDOUT should be a number
+
+    When I run `wp term get post_tag ctag --by=slug --field=id`
+    Then STDOUT should be a number
+
+    When I run `wp term get category parent --by=slug --field=id`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_CATEGORY_PARENT_ID}
+
+    When I run `wp term get category child --by=slug --field=parent`
+    Then STDOUT should be:
+      """
+      {EXPORT_CATEGORY_PARENT_ID}
+      """
+
+    When I run `wp term get category orphan --by=slug --field=parent`
+    Then STDOUT should be:
+      """
+      0
+      """
+
+  Scenario: Throw exception when orphaned terms are found
+    Given a WP install
+    And I run `wp term create category orphan --parent=1`
+    And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
+
+    When I try `wp export`
+    Then STDERR should contain:
+      """
+      Error: Term is missing a parent
       """
