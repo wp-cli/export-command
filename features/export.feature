@@ -1165,6 +1165,10 @@ Feature: Export content.
       """
       <wp:category_nicename>orphan</wp:category_nicename>
       """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag_slug>atag</wp:tag_slug>
+      """
 
     When I run `wp site empty --yes`
     And I run `wp plugin install wordpress-importer --activate`
