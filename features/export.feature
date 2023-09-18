@@ -996,6 +996,10 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_CATEGORY_ID}
 
+    When I run `wp term create category National --parent={EXPORT_CATEGORY_ID} --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {EXPORT_SUBCATEGORY_ID}
+
     When I run `wp term create post_tag Tech --description="Technology-related" --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_TAG_ID}
@@ -1027,6 +1031,10 @@ Feature: Export content.
     And the {EXPORT_FILE} file should contain:
       """
       <wp:term_id>{EXPORT_CATEGORY_ID}</wp:term_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:category_parent>news</wp:category_parent>
       """
     And the {EXPORT_FILE} file should contain:
       """
@@ -1103,6 +1111,20 @@ Feature: Export content.
     Then STDOUT should contain:
       """
       News
+      """
+    And STDOUT should contain:
+      """
+      National
+      """
+
+    When I run `wp term get category news --by=slug --field=id`
+    Then STDOUT should be a number
+    And save STDOUT as {IMPORT_CATEGORY_ID}
+
+    When I run `wp term get category national --by=slug --field=parent`
+    Then STDOUT should be:
+      """
+      {IMPORT_CATEGORY_ID}
       """
 
     When I run `wp term list post_tag`
