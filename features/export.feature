@@ -1197,6 +1197,12 @@ Feature: Export content.
       {EXPORT_CATEGORY_PARENT_ID}
       """
 
+    When I run `wp term get category orphan --by=slug --field=parent`
+    Then STDOUT should be:
+      """
+      0
+      """
+
   Scenario: Throw exception when orphaned terms are found
     Given a WP install
     And I run `wp term create category orphan --parent=1`
