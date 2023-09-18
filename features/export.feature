@@ -1149,6 +1149,7 @@ Feature: Export content.
       Test User
       """
 
+  @require-wp-5.2
   Scenario: Allow export to proceed when orphaned terms are found
     Given a WP install
     And I run `wp term create category orphan --parent=1`
