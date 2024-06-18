@@ -31,6 +31,7 @@ class Export_Command extends WP_CLI_Command {
 	private $max_file_size;
 	private $include_once;
 	private $wxr_path;
+	private $exclude = [];
 
 	/**
 	 * Exports WordPress content to a WXR file.
@@ -49,6 +50,12 @@ class Export_Command extends WP_CLI_Command {
 	 * : Output the whole XML using standard output (incompatible with --dir=)
 	 *
 	 * [--skip_comments]
+	 * : Don't include comments in the WXR export file.
+	 *
+	 * [--skip_authors]
+	 * : Don't include comments in the WXR export file.
+	 *
+	 * [--skip_terms]
 	 * : Don't include comments in the WXR export file.
 	 *
 	 * [--max_file_size=<MB>]
@@ -145,6 +152,8 @@ class Export_Command extends WP_CLI_Command {
 			'with_attachments'   => true, // or FALSE if user requested some post__in
 			'start_id'           => null,
 			'skip_comments'      => null,
+			'skip_authors'       => null,
+			'skip_terms'         => null,
 			'max_file_size'      => 15,
 			'filename_format'    => '{site}.wordpress.{date}.{n}.xml',
 			'include_once'       => null,
@@ -168,6 +177,17 @@ class Export_Command extends WP_CLI_Command {
 			'with_attachments',
 			$defaults['with_attachments']
 		);
+
+		if ( $this->export_args['skip_authors'] ) {
+			$this->exclude[] = 'authors';
+		}
+
+		if ( $this->export_args['skip_terms'] ) {
+			$this->exclude[] = 'categories';
+			$this->exclude[] = 'tags';
+			$this->exclude[] = 'custom_taxonomies_terms';
+			$this->exclude[] = 'nav_menu_terms';
+		}
 
 		if ( ! function_exists( 'wp_export' ) ) {
 			self::load_export_api();
@@ -204,6 +224,7 @@ class Export_Command extends WP_CLI_Command {
 							'destination_directory' => $this->wxr_path,
 							'filename_template'     => self::get_filename_template( $assoc_args['filename_format'] ),
 							'include_once'          => $this->include_once,
+							'exclude'               => $this->exclude,
 						],
 					]
 				);
@@ -465,6 +486,32 @@ class Export_Command extends WP_CLI_Command {
 			return false;
 		}
 		$this->export_args['skip_comments'] = $skip;
+		return true;
+	}
+
+	private function check_skip_authors( $skip ) {
+		if ( null === $skip ) {
+			return true;
+		}
+
+		if ( 0 !== (int) $skip && 1 !== (int) $skip ) {
+			WP_CLI::warning( 'skip_authors needs to be 0 (no) or 1 (yes).' );
+			return false;
+		}
+		$this->export_args['skip_authors'] = $skip;
+		return true;
+	}
+
+	private function check_skip_terms( $skip ) {
+		if ( null === $skip ) {
+			return true;
+		}
+
+		if ( 0 !== (int) $skip && 1 !== (int) $skip ) {
+			WP_CLI::warning( 'skip_terms needs to be 0 (no) or 1 (yes).' );
+			return false;
+		}
+		$this->export_args['skip_terms'] = $skip;
 		return true;
 	}
 
