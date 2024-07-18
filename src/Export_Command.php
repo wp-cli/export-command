@@ -53,10 +53,10 @@ class Export_Command extends WP_CLI_Command {
 	 * : Don't include comments in the WXR export file.
 	 *
 	 * [--skip_authors]
-	 * : Don't include comments in the WXR export file.
+	 * : Don't include authors in the WXR export file.
 	 *
 	 * [--skip_terms]
-	 * : Don't include comments in the WXR export file.
+	 * : Don't include terms (categories, tags, custom taxonomy terms and nav menu terms) in the WXR export file.
 	 *
 	 * [--max_file_size=<MB>]
 	 * : A single export file should have this many megabytes. -1 for unlimited.
@@ -176,6 +176,18 @@ class Export_Command extends WP_CLI_Command {
 			$assoc_args,
 			'with_attachments',
 			$defaults['with_attachments']
+		);
+
+		$this->export_args['skip_authors'] = Utils\get_flag_value(
+			$assoc_args,
+			'skip_authors',
+			$defaults['skip_authors']
+		);
+
+		$this->export_args['skip_terms'] = Utils\get_flag_value(
+			$assoc_args,
+			'skip_terms',
+			$defaults['skip_terms']
 		);
 
 		if ( $this->export_args['skip_authors'] ) {

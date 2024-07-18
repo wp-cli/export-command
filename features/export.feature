@@ -1236,3 +1236,31 @@ Feature: Export content.
       """
       Error: Term is missing a parent
       """
+
+  Scenario: Export a site and skip the authors
+    Given a WP install
+
+    When I run `wp export --skip_authors`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:author>
+      """
+
+  Scenario: Export a site and skip the terms
+    Given a WP install
+
+    When I run `wp export --skip_terms`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:term>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:category>
+      """
+    And the {EXPORT_FILE} file should not contain:
+      """
+      <wp:tags>
+      """
