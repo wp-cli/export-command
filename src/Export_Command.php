@@ -195,10 +195,7 @@ class Export_Command extends WP_CLI_Command {
 		}
 
 		if ( $this->export_args['skip_terms'] ) {
-			$this->exclude[] = 'categories';
-			$this->exclude[] = 'tags';
-			$this->exclude[] = 'custom_taxonomies_terms';
-			$this->exclude[] = 'nav_menu_terms';
+			$this->exclude = array_merge( $this->exclude, array( 'categories', 'tags', 'nav_menu_terms', 'custom_taxonomies_terms' ) );
 		}
 
 		if ( ! function_exists( 'wp_export' ) ) {
