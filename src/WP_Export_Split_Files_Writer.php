@@ -45,10 +45,12 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 			$this->subsequent_sections = array_diff( $this->available_sections, $writer_args['include_once'] );
 		}
 
-		foreach ( $writer_args['exclude'] as $exclude ) {
-			$key = array_search( $exclude, $this->available_sections );
-			if ( false !== $key ) {
-				unset( $this->available_sections[ $key ] );
+		if ( ! empty( $writer_args['exclude'] ) ) {
+			foreach ( $writer_args['exclude'] as $exclude ) {
+				$key = array_search( $exclude, $this->available_sections, true );
+				if ( false !== $key ) {
+					unset( $this->available_sections[ $key ] );
+				}
 			}
 		}
 
