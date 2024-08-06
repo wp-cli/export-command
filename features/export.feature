@@ -788,6 +788,7 @@ Feature: Export content.
       <wp:tag>
       """
 
+  @require-mysql
   Scenario: Export without splitting the dump
     Given a WP install
     # Make export file > 15MB so will split by default. Need to split into 4 * 4MB to stay below 10% of default redo log size of 48MB, otherwise get MySQL error.
@@ -1227,6 +1228,7 @@ Feature: Export content.
       0
       """
 
+  @require-mysql
   Scenario: Throw exception when orphaned terms are found
     Given a WP install
     And I run `wp term create category orphan --parent=1`
