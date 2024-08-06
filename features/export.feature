@@ -40,7 +40,7 @@ Feature: Export content.
       """
     And the return code should be 1
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export with post_type and post_status argument
     Given a WP install
 
@@ -79,7 +79,7 @@ Feature: Export content.
       10
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export a comma-separated list of post types
     Given a WP install
 
@@ -132,7 +132,7 @@ Feature: Export content.
       10
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export only one post
     Given a WP install
 
@@ -204,7 +204,7 @@ Feature: Export content.
       2
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export multiple posts, separated by spaces
     Given a WP install
 
@@ -237,7 +237,7 @@ Feature: Export content.
       2
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export multiple posts, separated by comma
     Given a WP install
 
@@ -270,7 +270,7 @@ Feature: Export content.
       2
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export posts within a given date range
     Given a WP install
 
@@ -311,7 +311,7 @@ Feature: Export content.
       10
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export posts from a given category
     Given a WP install
     And I run `wp site empty --yes`
@@ -393,7 +393,7 @@ Feature: Export content.
       Apple Post
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export posts from a given author
     Given a WP install
     And I run `wp site empty --yes`
@@ -476,7 +476,7 @@ Feature: Export content.
       john.doe@example.com
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export posts should include user information
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
@@ -503,7 +503,7 @@ Feature: Export content.
       Test User
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export posts from a given starting post ID
     Given a WP install
 
@@ -542,7 +542,7 @@ Feature: Export content.
       5
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Exclude a specific post type from export
     Given a WP install
     And I run `wp site empty --yes`
@@ -605,6 +605,7 @@ Feature: Export content.
       0
       """
 
+  @require-mysql
   Scenario: Export posts using --max_num_posts
     Given a WP install
     And I run `wp site empty --yes`
@@ -648,7 +649,7 @@ Feature: Export content.
       000.xml
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export a site and skip the comments
     Given a WP install
     And I run `wp comment generate --post_id=1 --count=2`
@@ -787,6 +788,7 @@ Feature: Export content.
       <wp:tag>
       """
 
+  @require-mysql
   Scenario: Export without splitting the dump
     Given a WP install
     # Make export file > 15MB so will split by default. Need to split into 4 * 4MB to stay below 10% of default redo log size of 48MB, otherwise get MySQL error.
@@ -828,7 +830,7 @@ Feature: Export content.
       """
     And STDERR should be empty
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export a site to stdout
     Given a WP install
     And I run `wp comment generate --post_id=1 --count=1`
@@ -882,7 +884,7 @@ Feature: Export content.
       """
     And the return code should be 1
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export individual post with attachments
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
@@ -974,7 +976,7 @@ Feature: Export content.
       white-150-square.jpg";s:
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export categories, tags and terms
     Given a WP install
     And a wp-content/mu-plugins/register-region-taxonomy.php file:
@@ -1139,7 +1141,7 @@ Feature: Export content.
       Europe
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Export posts should not include oembed_cache posts user information
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
@@ -1171,7 +1173,7 @@ Feature: Export content.
       Test User
       """
 
-  @require-wp-5.2
+  @require-wp-5.2 @require-mysql
   Scenario: Allow export to proceed when orphaned terms are found
     Given a WP install
     And I run `wp term create category orphan --parent=1`
@@ -1226,6 +1228,7 @@ Feature: Export content.
       0
       """
 
+  @require-mysql
   Scenario: Throw exception when orphaned terms are found
     Given a WP install
     And I run `wp term create category orphan --parent=1`
