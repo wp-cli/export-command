@@ -132,6 +132,7 @@ COMMENT;
 				->tag( 'wp:category_parent', $category->parent_slug )
 				->optional_cdata( 'wp:cat_name', $category->name )
 				->optional_cdata( 'wp:category_description', $category->description )
+				->oxymel( $this->term_meta( $category ) )
 				->end;
 		}
 		return $oxymel->to_string();
@@ -256,6 +257,7 @@ COMMENT;
 				$oxymel
 				->optional_cdata( 'wp:term_name', $term->name )
 				->optional_cdata( 'wp:term_description', $term->description )
+				->oxymel( $this->term_meta( $term ) )
 				->end;
 		}
 		return $oxymel->to_string();
@@ -271,6 +273,22 @@ COMMENT;
 		foreach ( $metas as $meta ) {
 			$oxymel->tag( 'wp:commentmeta' )->contains
 				->tag( 'wp:meta_key', $meta->meta_key )
+				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
+			->end;
+		}
+		return $oxymel;
+	}
+
+	protected function term_meta( $term ) {
+		global $wpdb;
+		$metas = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->termmeta WHERE term_id = %d", $term->term_id ) );
+		if ( ! $metas ) {
+			return new Oxymel();
+		}
+		$oxymel = new WP_Export_Oxymel();
+		foreach ( $metas as $meta ) {
+			$oxymel->tag( 'wp:termmeta' )->contains
+				->tag( 'wp:meta_key' )->contains->cdata( $meta->meta_key )->end
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
 			->end;
 		}
