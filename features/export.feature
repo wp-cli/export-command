@@ -1268,3 +1268,55 @@ Feature: Export content.
       <wp:tags>
       """
 
+  @require-wp-5.2 @require-mysql
+  Scenario: Export posts with future status
+    Given a WP install
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp site empty --yes`
+
+    When I run `wp post create --post_title='Future Post 1' --post_status=future --post_date='2050-01-01 12:00:00' --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {FUTURE_POST_1}
+
+    When I run `wp post create --post_title='Future Post 2' --post_status=future --post_date='2050-01-02 12:00:00' --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {FUTURE_POST_2}
+
+    When I run `wp post list --post_status=future --format=count`
+    Then STDOUT should be:
+      """
+      2
+      """
+
+    When I run `wp export --post_type=post --post_status=future`
+    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_id>{FUTURE_POST_1}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:status>future</wp:status>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_date>2050-01-01 12:00:00</wp:post_date>
+      """
+
+    When I run `wp site empty --yes`
+    Then STDOUT should not be empty
+
+    When I run `wp post list --post_status=future --format=count`
+    Then STDOUT should be:
+      """
+      0
+      """
+
+    When I run `wp import {EXPORT_FILE} --authors=skip`
+    Then STDOUT should not be empty
+
+    When I run `wp post list --post_status=future --format=count`
+    Then STDOUT should be:
+      """
+      2
+      """
