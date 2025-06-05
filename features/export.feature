@@ -1307,11 +1307,11 @@ Feature: Export content.
       """
       <wp:termmeta>
       """
-      And the {EXPORT_FILE} file should contain:
+    And the {EXPORT_FILE} file should contain:
       """
       <wp:meta_key><![CDATA[term_metakey]]></wp:meta_key>
       """
-      And the {EXPORT_FILE} file should contain:
+    And the {EXPORT_FILE} file should contain:
       """
       <wp:meta_value><![CDATA[term_metavalue]]></wp:meta_value>
       """
