@@ -4,7 +4,6 @@ class WP_Export_Returner extends WP_Export_Base_Writer {
 	private $result = '';
 
 	public function export() {
-		$this->private = '';
 		try {
 			parent::export();
 		} catch ( WP_Export_Exception $e ) {

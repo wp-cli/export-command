@@ -1,10 +1,43 @@
 <?php
 
+/**
+ * @implements \Iterator<int, object{}>
+ */
 class WP_Post_IDs_Iterator implements Iterator {
+	/**
+	 * @var \wpdb
+	 */
+	private $db;
+
+	/**
+	 * @var int
+	 */
 	private $limit = 100;
+
+	/**
+	 * @var int[]
+	 */
 	private $post_ids;
+
+	/**
+	 * @var int[]
+	 */
 	private $ids_left;
+
+	/**
+	 * @var int[]
+	 */
 	private $results = array();
+
+	/**
+	 * @var int
+	 */
+	private $index_in_results;
+
+	/**
+	 * @var int
+	 */
+	private $global_index;
 
 	public function __construct( $post_ids, $limit = null ) {
 		$this->db       = $GLOBALS['wpdb'];
@@ -15,19 +48,23 @@ class WP_Post_IDs_Iterator implements Iterator {
 		}
 	}
 
+	#[\ReturnTypeWillChange]
 	public function current() {
 		return $this->results[ $this->index_in_results ];
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key() {
 		return $this->global_index;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next() {
 		++$this->index_in_results;
 		++$this->global_index;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function rewind() {
 		$this->results          = array();
 		$this->global_index     = 0;
@@ -35,6 +72,7 @@ class WP_Post_IDs_Iterator implements Iterator {
 		$this->ids_left         = $this->post_ids;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function valid() {
 		if ( isset( $this->results[ $this->index_in_results ] ) ) {
 			return true;
