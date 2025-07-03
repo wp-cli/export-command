@@ -251,9 +251,14 @@ class Export_Command extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * @param string $path
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_dir( $path ) {
 		if ( empty( $path ) ) {
-			$path = getcwd();
+			$path = (string) getcwd();
 		} elseif ( ! is_dir( $path ) ) {
 			WP_CLI::error( sprintf( "The directory '%s' does not exist.", $path ) );
 		} elseif ( ! is_writable( $path ) ) {
@@ -265,6 +270,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $date
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_start_date( $date ) {
 		if ( null === $date ) {
 			return true;
@@ -279,6 +289,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $date
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_end_date( $date ) {
 		if ( null === $date ) {
 			return true;
@@ -293,6 +308,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $post_type
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_post_type( $post_type ) {
 		if ( null === $post_type || 'any' === $post_type ) {
 			return true;
@@ -317,6 +337,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $post_type
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_post_type__not_in( $post_type ) {
 		if ( null === $post_type ) {
 			return true;
@@ -341,6 +366,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $post__in
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_post__in( $post__in ) {
 		if ( null === $post__in ) {
 			return true;
@@ -357,6 +387,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $start_id
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_start_id( $start_id ) {
 		if ( null === $start_id ) {
 			return true;
@@ -374,6 +409,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $author
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_author( $author ) {
 		if ( null === $author ) {
 			return true;
@@ -418,6 +458,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $category
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_category( $category ) {
 		if ( null === $category ) {
 			return true;
@@ -436,6 +481,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $status
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_post_status( $status ) {
 		if ( null === $status ) {
 			return true;
@@ -455,6 +505,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string|null $shkip
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_skip_comments( $skip ) {
 		if ( null === $skip ) {
 			return true;
@@ -468,6 +523,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $size
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_max_file_size( $size ) {
 		if ( ! is_numeric( $size ) ) {
 			WP_CLI::warning( 'max_file_size should be numeric.' );
@@ -479,6 +539,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $once
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_include_once( $once ) {
 		if ( null === $once ) {
 			return true;
@@ -497,6 +562,11 @@ class Export_Command extends WP_CLI_Command {
 		return true;
 	}
 
+	/**
+	 * @param string $allow_orphan_terms
+	 *
+	 * @phpstan-ignore method.unused
+	 */
 	private function check_allow_orphan_terms( $allow_orphan_terms ) {
 		if ( null === $allow_orphan_terms ) {
 			return true;

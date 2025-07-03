@@ -12,11 +12,24 @@ define( 'WXR_VERSION', '1.2' ); //phpcs:ignore WordPress.NamingConventions.Prefi
  * Responsible for formatting the data in WP_Export_Query to WXR
  */
 class WP_Export_WXR_Formatter {
+	/**
+	 * @var WP_Export_Query
+	 */
+	private $export;
+
+	/**
+	 * @var string
+	 */
+	private $wxr_version;
+
 	public function __construct( $export ) {
 		$this->export      = $export;
 		$this->wxr_version = WXR_VERSION;
 	}
 
+	/**
+	 * @param array<string> $requested_sections
+	 */
 	public function before_posts( $requested_sections = [] ) {
 		$available_sections = [
 			'header',
