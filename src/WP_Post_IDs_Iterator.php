@@ -25,7 +25,7 @@ class WP_Post_IDs_Iterator implements Iterator {
 	private $ids_left;
 
 	/**
-	 * @var int[]
+	 * @var object[]
 	 */
 	private $results = array();
 
