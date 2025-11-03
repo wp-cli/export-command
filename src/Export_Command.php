@@ -506,7 +506,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * @param string|null $shkip
+	 * @param string|null $skip
 	 *
 	 * @phpstan-ignore method.unused
 	 */
