@@ -423,7 +423,7 @@ class Export_Command extends WP_CLI_Command {
 		}
 
 		// phpcs:ignore WordPress.WP.DeprecatedFunctions.get_users_of_blogFound -- Fallback.
-		$authors = function_exists( 'get_users' ) ? get_users() : get_users_of_blog(); // phpstan-ignore-line
+		$authors = function_exists( 'get_users' ) ? get_users() : get_users_of_blog(); // @phpstan-ignore-line
 		if ( empty( $authors ) ) {
 			WP_CLI::warning( 'Could not find any authors in this blog.' );
 			return false;
