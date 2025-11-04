@@ -188,17 +188,17 @@ class Export_Command extends WP_CLI_Command {
 		try {
 			if ( $this->stdout ) {
 				wp_export(
-					[ // @phpstan-ignore argument.type
+					[
 						'filters'     => $this->export_args,
-						'writer'      => WP_Export_File_Writer::class,
+						'writer'      => WP_Export_File_Writer::class, // @phpstan-ignore argument.type
 						'writer_args' => 'php://output',
 					]
 				);
 			} else {
 				wp_export(
-					[ // @phpstan-ignore argument.type
+					[
 						'filters'     => $this->export_args,
-						'writer'      => WP_Export_Split_Files_Writer::class,
+						'writer'      => WP_Export_Split_Files_Writer::class, // @phpstan-ignore argument.type
 						'writer_args' => [
 							'max_file_size'         => $this->max_file_size,
 							'destination_directory' => $this->wxr_path,
