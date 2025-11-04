@@ -122,7 +122,7 @@ class WP_Export_Query {
 		}
 		$custom_taxonomies = get_taxonomies( [ '_builtin' => false ] );
 		// phpcs:ignore WordPress.WP.DeprecatedParameters.Get_termsParam2Found -- Deprecated, but we need to support older versions of WordPress.
-		$custom_terms = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
+		$custom_terms = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] ); // @phpstan-ignore-line
 		$custom_terms = $this->process_orphaned_terms( $custom_terms );
 		$custom_terms = self::topologically_sort_terms( $custom_terms );
 		return $custom_terms;
@@ -323,7 +323,7 @@ class WP_Export_Query {
 
 	private function find_user_from_any_object( $user ) {
 		if ( is_numeric( $user ) ) {
-			return get_user_by( 'id', $user );
+			return get_user_by( 'id', (int) $user );
 		} elseif ( is_string( $user ) ) {
 			return get_user_by( 'login', $user );
 		} elseif ( isset( $user->ID ) ) {
@@ -334,10 +334,10 @@ class WP_Export_Query {
 
 	private function find_category_from_any_object( $category ) {
 		if ( is_numeric( $category ) ) {
-			return get_term( $category, 'category' );
+			return get_term( (int) $category, 'category' );
 		} elseif ( is_string( $category ) ) {
 			$term = term_exists( $category, 'category' );
-			return isset( $term['term_id'] ) ? get_term( $term['term_id'], 'category' ) : false;
+			return isset( $term['term_id'] ) ? get_term( (int) $term['term_id'], 'category' ) : false;
 		} elseif ( isset( $category->term_id ) ) {
 			return get_term( $category->term_id, 'category' );
 		}

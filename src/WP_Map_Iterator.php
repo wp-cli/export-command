@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @extends IteratorIterator<mixed, mixed, \Iterator<mixed>>
+ */
 class WP_Map_Iterator extends IteratorIterator {
 	/**
 	 * @var callable
