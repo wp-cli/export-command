@@ -334,10 +334,10 @@ class WP_Export_Query {
 
 	private function find_category_from_any_object( $category ) {
 		if ( is_numeric( $category ) ) {
-			return get_term( $category, 'category' );
+			return get_term( (int) $category, 'category' );
 		} elseif ( is_string( $category ) ) {
 			$term = term_exists( $category, 'category' );
-			return isset( $term['term_id'] ) ? get_term( $term['term_id'], 'category' ) : false;
+			return isset( $term['term_id'] ) ? get_term( (int) $term['term_id'], 'category' ) : false;
 		} elseif ( isset( $category->term_id ) ) {
 			return get_term( $category->term_id, 'category' );
 		}

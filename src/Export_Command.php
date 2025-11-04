@@ -181,13 +181,13 @@ class Export_Command extends WP_CLI_Command {
 			'wp_export_new_file',
 			static function ( $file_path ) {
 				WP_CLI::log( sprintf( 'Writing to file %s', $file_path ) );
-				Utils\wp_clear_object_cache(); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.wp_clear_object_cacheDeprecatedRemoved
+				Utils\wp_clear_object_cache(); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.wp_clear_object_cacheDeprecatedRemoved phpstan-ignore-line
 			}
 		);
 
 		try {
 			if ( $this->stdout ) {
-				wp_export(
+				wp_export( // phpstan-ignore-line
 					[
 						'filters'     => $this->export_args,
 						'writer'      => WP_Export_File_Writer::class,
@@ -195,7 +195,7 @@ class Export_Command extends WP_CLI_Command {
 					]
 				);
 			} else {
-				wp_export(
+				wp_export( // phpstan-ignore-line
 					[
 						'filters'     => $this->export_args,
 						'writer'      => WP_Export_Split_Files_Writer::class,
