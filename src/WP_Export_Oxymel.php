@@ -10,7 +10,7 @@ class WP_Export_Oxymel extends Oxymel {
 
 	public function optional_cdata( $tag_name, $contents ) {
 		if ( $contents ) {
-			$this->$tag_name->contains->cdata( $contents )->end;
+			$this->$tag_name->contains->cdata( $contents )->end; // phpstan-ignore-line
 		}
 		return $this;
 	}

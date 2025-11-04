@@ -224,7 +224,7 @@ COMMENT;
 			->tag( 'wp:postmeta' )->contains
 				->tag( 'wp:meta_key', $meta->meta_key )
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
-				->end;
+				->end; // phpstan-ignore-line
 		}
 		foreach ( $post->comments as $comment ) {
 			$oxymel
@@ -242,16 +242,16 @@ COMMENT;
 				->tag( 'wp:comment_parent', $comment->comment_parent )
 				->tag( 'wp:comment_user_id', $comment->user_id )
 				->oxymel( $this->comment_meta( $comment ) )
-				->end;
+				->end; // phpstan-ignore-line
 		}
 		$oxymel
-			->end;
+			->end; // phpstan-ignore-line
 		return $oxymel->to_string();
 	}
 
 	public function footer() {
 		$oxymel = new Oxymel();
-		return $oxymel->close_channel->close_rss->to_string();
+		return $oxymel->close_channel->close_rss->to_string(); // phpstan-ignore-line
 	}
 
 	protected function terms( $terms ) {
@@ -269,7 +269,7 @@ COMMENT;
 				$oxymel
 				->optional_cdata( 'wp:term_name', $term->name )
 				->optional_cdata( 'wp:term_description', $term->description )
-				->end;
+				->end; // phpstan-ignore-line
 		}
 		return $oxymel->to_string();
 	}
@@ -285,7 +285,7 @@ COMMENT;
 			$oxymel->tag( 'wp:commentmeta' )->contains
 				->tag( 'wp:meta_key', $meta->meta_key )
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
-			->end;
+			->end; // phpstan-ignore-line
 		}
 		return $oxymel;
 	}
