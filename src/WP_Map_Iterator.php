@@ -1,6 +1,18 @@
 <?php
 
+/**
+ * @extends IteratorIterator<mixed, mixed, \Iterator<mixed>>
+ */
 class WP_Map_Iterator extends IteratorIterator {
+	/**
+	 * @var callable
+	 */
+	private $callback;
+
+	/**
+	 * @param \Iterator $iterator
+	 * @param callable $callback
+	 */
 	public function __construct( $iterator, $callback ) {
 		$this->callback = $callback;
 		parent::__construct( $iterator );

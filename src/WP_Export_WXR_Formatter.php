@@ -12,11 +12,24 @@ define( 'WXR_VERSION', '1.2' ); //phpcs:ignore WordPress.NamingConventions.Prefi
  * Responsible for formatting the data in WP_Export_Query to WXR
  */
 class WP_Export_WXR_Formatter {
+	/**
+	 * @var WP_Export_Query
+	 */
+	private $export;
+
+	/**
+	 * @var string
+	 */
+	private $wxr_version;
+
 	public function __construct( $export ) {
 		$this->export      = $export;
 		$this->wxr_version = WXR_VERSION;
 	}
 
+	/**
+	 * @param array<string> $requested_sections
+	 */
 	public function before_posts( $requested_sections = [] ) {
 		$available_sections = [
 			'header',
@@ -72,7 +85,7 @@ class WP_Export_WXR_Formatter {
 
 COMMENT;
 		return $oxymel
-			->xml
+			->xml // @phpstan-ignore-line
 			->comment( $comment )
 			->raw( $wp_generator_tag )
 			->open_rss(
@@ -92,7 +105,7 @@ COMMENT;
 	public function site_metadata() {
 		$oxymel   = new Oxymel();
 		$metadata = $this->export->site_metadata();
-		return $oxymel
+		return $oxymel // @phpstan-ignore-line
 			->title( $metadata['name'] )
 			->link( $metadata['url'] )
 			->description( $metadata['description'] )
@@ -116,7 +129,7 @@ COMMENT;
 					->tag( 'wp:author_display_name' )->contains->cdata( $author->display_name )->end
 					->tag( 'wp:author_first_name' )->contains->cdata( $author->user_firstname )->end
 					->tag( 'wp:author_last_name' )->contains->cdata( $author->user_lastname )->end
-					->end;
+					->end; // @phpstan-ignore-line
 		}
 		return $oxymel->to_string();
 	}
@@ -132,7 +145,7 @@ COMMENT;
 				->tag( 'wp:category_parent', $category->parent_slug )
 				->optional_cdata( 'wp:cat_name', $category->name )
 				->optional_cdata( 'wp:category_description', $category->description )
-				->end;
+				->end; // @phpstan-ignore-line
 		}
 		return $oxymel->to_string();
 	}
@@ -146,7 +159,7 @@ COMMENT;
 				->tag( 'wp:tag_slug', $tag->slug )
 				->optional_cdata( 'wp:tag_name', $tag->name )
 				->optional_cdata( 'wp:tag_description', $tag->description )
-				->end;
+				->end; // @phpstan-ignore-line
 		}
 		return $oxymel->to_string();
 	}
@@ -173,10 +186,10 @@ COMMENT;
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
 
-		$oxymel->item->contains
+		$oxymel->item->contains // @phpstan-ignore-line
 			->tag( 'title' )->contains->cdata( apply_filters( 'the_title_export', $post->post_title ) )->end // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
 			->link( esc_url( apply_filters( 'the_permalink_rss', get_permalink() ) ) ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
-			->pubDate( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) )
+			->pubDate( mysql2date( 'D, d M Y H:i:s +0000', (string) get_post_time( 'Y-m-d H:i:s', true ), false ) )
 			->tag( 'dc:creator', get_the_author_meta( 'login' ) )
 			->guid( esc_url( get_the_guid() ), [ 'isPermaLink' => 'false' ] )
 			->description( '' )
@@ -198,23 +211,23 @@ COMMENT;
 			->tag( 'wp:is_sticky', $post->is_sticky )
 			->optional( 'wp:attachment_url', wp_get_attachment_url( $post->ID ) );
 		foreach ( $post->terms as $term ) {
-			$oxymel
+			$oxymel // @phpstan-ignore-line
 			->category(
 				[
 					'domain'   => $term->taxonomy,
 					'nicename' => $term->slug,
 				]
-			)->contains->cdata( $term->name )->end;
+			)->contains->cdata( $term->name )->end; // @phpstan-ignore-line
 		}
 		foreach ( $post->meta as $meta ) {
-			$oxymel
+			$oxymel // @phpstan-ignore-line
 			->tag( 'wp:postmeta' )->contains
 				->tag( 'wp:meta_key', $meta->meta_key )
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
-				->end;
+				->end; // @phpstan-ignore-line
 		}
 		foreach ( $post->comments as $comment ) {
-			$oxymel
+			$oxymel // @phpstan-ignore-line
 			->tag( 'wp:comment' )->contains
 				->tag( 'wp:comment_id', $comment->comment_ID )
 				->tag( 'wp:comment_author' )->contains->cdata( $comment->comment_author )->end
@@ -229,16 +242,16 @@ COMMENT;
 				->tag( 'wp:comment_parent', $comment->comment_parent )
 				->tag( 'wp:comment_user_id', $comment->user_id )
 				->oxymel( $this->comment_meta( $comment ) )
-				->end;
+				->end; // @phpstan-ignore-line
 		}
-		$oxymel
-			->end;
+		$oxymel // @phpstan-ignore-line
+			->end; // @phpstan-ignore-line
 		return $oxymel->to_string();
 	}
 
 	public function footer() {
 		$oxymel = new Oxymel();
-		return $oxymel->close_channel->close_rss->to_string();
+		return $oxymel->close_channel->close_rss->to_string(); // @phpstan-ignore-line
 	}
 
 	protected function terms( $terms ) {
@@ -253,10 +266,10 @@ COMMENT;
 				$oxymel
 				->tag( 'wp:term_parent', $term->parent_slug );
 			}
-				$oxymel
+				$oxymel // @phpstan-ignore-line
 				->optional_cdata( 'wp:term_name', $term->name )
 				->optional_cdata( 'wp:term_description', $term->description )
-				->end;
+				->end; // @phpstan-ignore-line
 		}
 		return $oxymel->to_string();
 	}
@@ -269,10 +282,10 @@ COMMENT;
 		}
 		$oxymel = new WP_Export_Oxymel();
 		foreach ( $metas as $meta ) {
-			$oxymel->tag( 'wp:commentmeta' )->contains
+			$oxymel->tag( 'wp:commentmeta' )->contains // @phpstan-ignore-line
 				->tag( 'wp:meta_key', $meta->meta_key )
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
-			->end;
+			->end; // @phpstan-ignore-line
 		}
 		return $oxymel;
 	}

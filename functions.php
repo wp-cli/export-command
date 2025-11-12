@@ -1,13 +1,19 @@
 <?php
 
-// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Renaming breaks Phar compat.
-function wp_export( $args = array() ) {
-	$defaults     = array(
+/**
+ * @param array{filters?: array<mixed>, format?: class-string<WP_Export_WXR_Formatter>, writer?: class-string<WP_Export_Returner>, writer_args?: mixed} $args
+ */
+function wp_export( $args = array() ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Renaming breaks Phar compat.
+	$defaults = array(
 		'filters'     => array(),
 		'format'      => 'WP_Export_WXR_Formatter',
 		'writer'      => 'WP_Export_Returner',
 		'writer_args' => null,
 	);
+
+	/**
+	 * @var array{filters: array<mixed>, format: class-string<WP_Export_WXR_Formatter>, writer: class-string<WP_Export_Returner>, writer_args: mixed} $args
+	 */
 	$args         = wp_parse_args( $args, $defaults );
 	$export_query = new WP_Export_Query( $args['filters'] );
 	$formatter    = new $args['format']( $export_query );
