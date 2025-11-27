@@ -245,7 +245,7 @@ class WP_Export_Query {
 
 	private function start_date_where() {
 		global $wpdb;
-		$timestamp = strtotime( $this->filters['start_date'] );
+		$timestamp = $this->filters['start_date'] ? strtotime( $this->filters['start_date'] ) : null;
 		if ( ! $timestamp ) {
 			return;
 		}
@@ -254,6 +254,9 @@ class WP_Export_Query {
 
 	private function end_date_where() {
 		global $wpdb;
+		if ( ! $this->filters['end_date'] ) {
+			return;
+		}
 		if ( preg_match( '/^\d{4}-\d{2}$/', $this->filters['end_date'] ) ) {
 			$timestamp = $this->get_timestamp_for_the_last_day_of_a_month( $this->filters['end_date'] );
 		} else {
