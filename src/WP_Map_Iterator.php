@@ -1,6 +1,8 @@
 <?php
 
 class WP_Map_Iterator extends IteratorIterator {
+	private $callback;
+
 	public function __construct( $iterator, $callback ) {
 		$this->callback = $callback;
 		parent::__construct( $iterator );

@@ -12,6 +12,9 @@ define( 'WXR_VERSION', '1.2' ); //phpcs:ignore WordPress.NamingConventions.Prefi
  * Responsible for formatting the data in WP_Export_Query to WXR
  */
 class WP_Export_WXR_Formatter {
+	private $export;
+	private $wxr_version;
+
 	public function __construct( $export ) {
 		$this->export      = $export;
 		$this->wxr_version = WXR_VERSION;
