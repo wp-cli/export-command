@@ -4,7 +4,10 @@ class WP_Post_IDs_Iterator implements Iterator {
 	private $limit = 100;
 	private $post_ids;
 	private $ids_left;
-	private $results = array();
+	private $results          = array();
+	private $global_index     = 0;
+	private $index_in_results = 0;
+	private $db;
 
 	public function __construct( $post_ids, $limit = null ) {
 		$this->db       = $GLOBALS['wpdb'];
@@ -15,19 +18,23 @@ class WP_Post_IDs_Iterator implements Iterator {
 		}
 	}
 
+	#[\ReturnTypeWillChange]
 	public function current() {
 		return $this->results[ $this->index_in_results ];
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key() {
 		return $this->global_index;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next() {
 		++$this->index_in_results;
 		++$this->global_index;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function rewind() {
 		$this->results          = array();
 		$this->global_index     = 0;
@@ -35,6 +42,7 @@ class WP_Post_IDs_Iterator implements Iterator {
 		$this->ids_left         = $this->post_ids;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function valid() {
 		if ( isset( $this->results[ $this->index_in_results ] ) ) {
 			return true;
