@@ -138,7 +138,7 @@ class WP_Export_Query {
 
 	public function exportify_post( $post ) {
 		// Ensure we have a proper WP_Post object.
-		$post                             = get_post( $post );
+		$post                             = get_post( $post->ID );
 		$GLOBALS['wp_query']->in_the_loop = true;
 		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
@@ -408,6 +408,9 @@ class WP_Export_Query {
 		if ( empty( $taxonomies ) ) {
 			return [];
 		}
+
+		// Prime the term cache for this post to ensure term relationships are loaded.
+		update_object_term_cache( $post->ID, $post->post_type );
 
 		$terms = [];
 		foreach ( $taxonomies as $taxonomy ) {
