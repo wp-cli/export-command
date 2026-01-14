@@ -1291,3 +1291,65 @@ Feature: Export content.
       """
       2
       """
+
+  @require-wp-5.2 @require-mysql
+  Scenario: Export posts by ID should include post tags
+    Given a WP install
+    And I run `wp plugin install wordpress-importer --activate`
+    And I run `wp site empty --yes`
+
+    When I run `wp term create post_tag featured --slug=featured-2 --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {TAG_ID}
+
+    When I run `wp post create --post_title='Tagged Post' --tags_input={TAG_ID} --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID}
+
+    When I run `wp export --post__in={POST_ID}`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag_slug>featured-2</wp:tag_slug>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:tag_name><![CDATA[featured]]></wp:tag_name>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:post_id>{POST_ID}</wp:post_id>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <category domain="post_tag" nicename="featured-2"><![CDATA[featured]]></category>
+      """
+
+    When I run `wp site empty --yes`
+    Then STDOUT should not be empty
+
+    When I run `wp import {EXPORT_FILE} --authors=skip`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp post list --format=count`
+    Then STDOUT should be:
+      """
+      1
+      """
+
+    When I run `wp post list --format=ids`
+    Then STDOUT should be a number
+    And save STDOUT as {IMPORTED_POST_ID}
+
+    When I run `wp post term list {IMPORTED_POST_ID} post_tag --field=slug`
+    Then STDOUT should be:
+      """
+      featured-2
+      """
