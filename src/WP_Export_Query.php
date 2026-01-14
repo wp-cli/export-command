@@ -137,6 +137,8 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
+		// Ensure we have a proper WP_Post object.
+		$post                             = get_post( $post );
 		$GLOBALS['wp_query']->in_the_loop = true;
 		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
@@ -409,7 +411,7 @@ class WP_Export_Query {
 
 		$terms = [];
 		foreach ( $taxonomies as $taxonomy ) {
-			$tax_terms = get_the_terms( $post, $taxonomy );
+			$tax_terms = get_the_terms( $post->ID, $taxonomy );
 			if ( $tax_terms && ! is_wp_error( $tax_terms ) ) {
 				$terms = array_merge( $terms, $tax_terms );
 			}
