@@ -137,8 +137,6 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
-		// Ensure we have a proper WP_Post object for term retrieval.
-		$post                             = get_post( $post );
 		$GLOBALS['wp_query']->in_the_loop = true;
 		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
@@ -404,14 +402,36 @@ class WP_Export_Query {
 	}
 
 	private static function get_terms_for_post( $post ) {
+		global $wpdb;
 		$taxonomies = get_object_taxonomies( $post->post_type );
 		if ( empty( $taxonomies ) ) {
 			return [];
 		}
-		$terms = wp_get_object_terms( $post->ID, $taxonomies );
-		if ( is_wp_error( $terms ) ) {
+
+		// Query database directly for term relationships to avoid cache issues.
+		$term_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT tt.term_id 
+				FROM {$wpdb->term_relationships} AS tr
+				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				WHERE tr.object_id = %d",
+				$post->ID
+			)
+		);
+
+		if ( empty( $term_ids ) ) {
 			return [];
 		}
+
+		// Now get the full term objects.
+		$terms = [];
+		foreach ( $term_ids as $term_id ) {
+			$term = get_term( $term_id );
+			if ( $term && ! is_wp_error( $term ) && in_array( $term->taxonomy, $taxonomies, true ) ) {
+				$terms[] = $term;
+			}
+		}
+
 		return $terms;
 	}
 
