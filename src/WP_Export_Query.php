@@ -410,7 +410,7 @@ class WP_Export_Query {
 		if ( is_wp_error( $terms ) ) {
 			return [];
 		}
-		return is_array( $terms ) ? $terms : [];
+		return $terms;
 	}
 
 	private static function get_meta_for_post( $post ) {
