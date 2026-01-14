@@ -402,33 +402,16 @@ class WP_Export_Query {
 	}
 
 	private static function get_terms_for_post( $post ) {
-		global $wpdb;
 		$taxonomies = get_object_taxonomies( $post->post_type );
 		if ( empty( $taxonomies ) ) {
 			return [];
 		}
 
-		// Query database directly for term relationships to avoid cache issues.
-		$term_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT tt.term_id 
-				FROM {$wpdb->term_relationships} AS tr
-				INNER JOIN {$wpdb->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-				WHERE tr.object_id = %d",
-				$post->ID
-			)
-		);
-
-		if ( empty( $term_ids ) ) {
-			return [];
-		}
-
-		// Now get the full term objects.
 		$terms = [];
-		foreach ( $term_ids as $term_id ) {
-			$term = get_term( $term_id );
-			if ( $term && ! is_wp_error( $term ) && in_array( $term->taxonomy, $taxonomies, true ) ) {
-				$terms[] = $term;
+		foreach ( $taxonomies as $taxonomy ) {
+			$tax_terms = get_the_terms( $post, $taxonomy );
+			if ( $tax_terms && ! is_wp_error( $tax_terms ) ) {
+				$terms = array_merge( $terms, $tax_terms );
 			}
 		}
 
