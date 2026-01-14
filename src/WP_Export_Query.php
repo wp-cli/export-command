@@ -406,7 +406,11 @@ class WP_Export_Query {
 		if ( empty( $taxonomies ) ) {
 			return [];
 		}
-		return wp_get_object_terms( $post->ID, $taxonomies ) ?: [];
+		$terms = wp_get_object_terms( $post->ID, $taxonomies );
+		if ( is_wp_error( $terms ) ) {
+			return [];
+		}
+		return is_array( $terms ) ? $terms : [];
 	}
 
 	private static function get_meta_for_post( $post ) {
