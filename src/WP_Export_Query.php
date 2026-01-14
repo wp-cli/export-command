@@ -137,6 +137,8 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
+		// Ensure we have a proper WP_Post object for term retrieval.
+		$post                             = get_post( $post );
 		$GLOBALS['wp_query']->in_the_loop = true;
 		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
