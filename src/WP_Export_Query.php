@@ -402,25 +402,11 @@ class WP_Export_Query {
 	}
 
 	private static function get_terms_for_post( $post ) {
-		// Ensure post_type is set.
-		if ( empty( $post->post_type ) ) {
-			return [];
-		}
-
 		$taxonomies = get_object_taxonomies( $post->post_type );
 		if ( empty( $taxonomies ) ) {
 			return [];
 		}
-
-		// Clear any stale cache and fetch fresh term data.
-		clean_post_cache( $post->ID );
-		$terms = wp_get_object_terms( $post->ID, $taxonomies );
-
-		if ( is_wp_error( $terms ) ) {
-			return [];
-		}
-
-		return is_array( $terms ) ? $terms : [];
+		return wp_get_object_terms( $post->ID, $taxonomies ) ?: [];
 	}
 
 	private static function get_meta_for_post( $post ) {
