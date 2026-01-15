@@ -1292,7 +1292,7 @@ Feature: Export content.
       2
       """
 
-  @require-wp-5.2 @require-mysql
+  @require-wp-5.2
   Scenario: Export posts by ID should include post tags
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
