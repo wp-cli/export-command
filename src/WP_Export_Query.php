@@ -137,8 +137,6 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
-		// Ensure we have a proper WP_Post object.
-		$post                             = get_post( $post->ID );
 		$GLOBALS['wp_query']->in_the_loop = true;
 		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
@@ -404,23 +402,25 @@ class WP_Export_Query {
 	}
 
 	private static function get_terms_for_post( $post ) {
+		// Ensure post_type is set.
+		if ( empty( $post->post_type ) ) {
+			return [];
+		}
+
 		$taxonomies = get_object_taxonomies( $post->post_type );
 		if ( empty( $taxonomies ) ) {
 			return [];
 		}
 
-		// Prime the term cache for this post to ensure term relationships are loaded.
-		update_object_term_cache( $post->ID, $post->post_type );
+		// Clear any stale cache and fetch fresh term data.
+		clean_post_cache( $post->ID );
+		$terms = wp_get_object_terms( $post->ID, $taxonomies );
 
-		$terms = [];
-		foreach ( $taxonomies as $taxonomy ) {
-			$tax_terms = get_the_terms( $post->ID, $taxonomy );
-			if ( $tax_terms && ! is_wp_error( $tax_terms ) ) {
-				$terms = array_merge( $terms, $tax_terms );
-			}
+		if ( is_wp_error( $terms ) ) {
+			return [];
 		}
 
-		return $terms;
+		return is_array( $terms ) ? $terms : [];
 	}
 
 	private static function get_meta_for_post( $post ) {
