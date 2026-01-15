@@ -1001,7 +1001,7 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_SUBCATEGORY_ID}
 
-    When I run `wp term create post_tag Tech --description="Technology-related" --porcelain`
+    When I run `wp term create post_tag Tech --slug=tech --description="Technology-related" --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_TAG_ID}
 
@@ -1009,7 +1009,7 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_TERM_ID}
 
-    When I run `wp post create --post_title='Breaking News' --post_category={EXPORT_CATEGORY_ID} --tags_input={EXPORT_TAG_ID} --porcelain`
+    When I run `wp post create --post_title='Breaking News' --post_category={EXPORT_CATEGORY_ID} --tags_input=tech --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_POST_ID}
 
@@ -1302,7 +1302,7 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {TAG_ID}
 
-    When I run `wp post create --post_title='Tagged Post' --tags_input={TAG_ID} --porcelain`
+    When I run `wp post create --post_title='Tagged Post' --tags_input=featured-2 --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
