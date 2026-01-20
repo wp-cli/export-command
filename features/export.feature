@@ -59,7 +59,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post_type=page --post_status=draft`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -100,7 +100,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post_type=page,post`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -175,8 +175,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post__in={POST_ID}`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
-
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
     And the {EXPORT_FILE} file should not contain:
       """
       <wp:post_id>{ATTACHMENT_ID}</wp:post_id>
@@ -223,7 +222,7 @@ Feature: Export content.
     And save STDOUT as {POST_ID_TWO}
 
     When I run `wp export --post__in="{POST_ID} {POST_ID_TWO}"`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -256,7 +255,7 @@ Feature: Export content.
     And save STDOUT as {POST_ID_TWO}
 
     When I run `wp export --post__in="{POST_ID},{POST_ID_TWO}"`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -291,7 +290,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post_type=post --start_date=2013-08-02 --end_date=2013-08-02`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -522,7 +521,7 @@ Feature: Export content.
       """
 
     When I run `wp export --start_id=6`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -557,7 +556,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post_type__not_in=post`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -585,7 +584,7 @@ Feature: Export content.
       """
 
     When I run `wp export --post_type__not_in=post,page`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
@@ -662,7 +661,7 @@ Feature: Export content.
       """
 
     When I run `wp export --skip_comments`
-    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp site empty --yes`
     Then STDOUT should not be empty
