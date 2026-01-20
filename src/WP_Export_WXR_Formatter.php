@@ -291,7 +291,7 @@ COMMENT;
 		$oxymel = new WP_Export_Oxymel();
 		foreach ( $metas as $meta ) {
 			$oxymel->tag( 'wp:termmeta' )->contains
-				->tag( 'wp:meta_key' )->contains->cdata( $meta->meta_key )->end
+				->tag( 'wp:meta_key', $meta->meta_key )
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
 			->end;
 		}
