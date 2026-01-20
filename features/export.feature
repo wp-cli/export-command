@@ -1265,7 +1265,7 @@ Feature: Export content.
       """
     And the {EXPORT_FILE} file should not contain:
       """
-      <wp:tags>
+      <wp:tag>
       """
 
   @require-wp-5.2 @require-mysql
