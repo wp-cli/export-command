@@ -1309,7 +1309,7 @@ Feature: Export content.
       """
     And the {EXPORT_FILE} file should contain:
       """
-      <wp:meta_key><![CDATA[term_metakey]]></wp:meta_key>
+      <wp:meta_key>term_metakey</wp:meta_key>
       """
     And the {EXPORT_FILE} file should contain:
       """
