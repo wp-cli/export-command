@@ -190,10 +190,11 @@ class Export_Command extends WP_CLI_Command {
 			$defaults['skip_terms']
 		);
 
+		// Re-calculate exclusions after validation to ensure consistency.
+		$this->exclude = [];
 		if ( $this->export_args['skip_authors'] ) {
 			$this->exclude[] = 'authors';
 		}
-
 		if ( $this->export_args['skip_terms'] ) {
 			$this->exclude = array_merge( $this->exclude, array( 'categories', 'tags', 'nav_menu_terms', 'custom_taxonomies_terms' ) );
 		}
