@@ -1291,3 +1291,27 @@ Feature: Export content.
       """
       2
       """
+
+  Scenario: Export term meta
+    Given a WP install
+
+    When I run `wp term meta add 1 term_metakey term_metavalue`
+    Then STDOUT should contain:
+      """
+      Success:
+      """
+
+    When I run `wp export`
+    And save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+    Then the {EXPORT_FILE} file should contain:
+      """
+      <wp:termmeta>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:meta_key>term_metakey</wp:meta_key>
+      """
+    And the {EXPORT_FILE} file should contain:
+      """
+      <wp:meta_value><![CDATA[term_metavalue]]></wp:meta_value>
+      """
