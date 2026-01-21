@@ -292,8 +292,8 @@ class WP_Export_Query {
 		if ( ! $category ) {
 			return;
 		}
-		$this->category = $category;
-		$this->joins[]  = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
+		$this->category        = $category;
+		$this->joins[]         = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
 		$this->where_clauses[] = $wpdb->prepare( 'tr.term_taxonomy_id = %d', $category->term_taxonomy_id );
 	}
 
