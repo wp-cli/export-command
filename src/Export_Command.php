@@ -441,14 +441,15 @@ class Export_Command extends WP_CLI_Command {
 			return true;
 		}
 
-		$stati = get_post_stati();
-		if ( empty( $stati ) || is_wp_error( $stati ) ) {
-			WP_CLI::warning( 'Could not find any post stati.' );
+		// spellchecker:ignore-next-line
+		$statuses = get_post_stati();
+		if ( empty( $statuses ) || is_wp_error( $statuses ) ) {
+			WP_CLI::warning( 'Could not find any post statuses.' );
 			return false;
 		}
 
-		if ( ! isset( $stati[ $status ] ) ) {
-			WP_CLI::warning( sprintf( 'Could not find a post_status matching %s. Here is a list of available stati: %s', $status, implode( ', ', array_keys( $stati ) ) ) );
+		if ( ! isset( $statuses[ $status ] ) ) {
+			WP_CLI::warning( sprintf( 'Could not find a post_status matching %s. Here is a list of available statuses: %s', $status, implode( ', ', array_keys( $statuses ) ) ) );
 			return false;
 		}
 		$this->export_args['status'] = $status;
