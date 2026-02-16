@@ -26,8 +26,9 @@ class WP_Export_Query {
 	private $post_ids;
 	private $filters;
 
-	private $wheres = [];
-	private $joins  = [];
+	private $where_clauses = [];
+
+	private $joins = [];
 
 	private $author;
 	private $category;
@@ -182,7 +183,7 @@ class WP_Export_Query {
 		$this->start_id_where();
 		$this->category_where();
 
-		$where = implode( ' AND ', array_filter( $this->wheres ) );
+		$where = implode( ' AND ', array_filter( $this->where_clauses ) );
 		if ( $where ) {
 			$where = "WHERE $where";
 		}
@@ -224,7 +225,7 @@ class WP_Export_Query {
 		}
 
 		if ( ! $post_types ) {
-			$this->wheres[] = 'p.post_type IS NULL';
+			$this->where_clauses[] = 'p.post_type IS NULL';
 			return;
 		}
 
@@ -232,36 +233,39 @@ class WP_Export_Query {
 			unset( $post_types['attachment'] );
 		}
 
-		$this->wheres[] = _wp_export_build_IN_condition( 'p.post_type', $post_types );
+		$this->where_clauses[] = _wp_export_build_IN_condition( 'p.post_type', $post_types );
 	}
 
 	private function status_where() {
 		global $wpdb;
 		if ( ! $this->filters['status'] ) {
-			$this->wheres[] = "p.post_status != 'auto-draft'";
+			$this->where_clauses[] = "p.post_status != 'auto-draft'";
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_status = %s', $this->filters['status'] );
+		$this->where_clauses[] = $wpdb->prepare( 'p.post_status = %s', $this->filters['status'] );
 	}
 
 	private function author_where() {
 		global $wpdb;
 		if ( is_object( $this->author ) && property_exists( $this->author, 'ID' ) ) {
-			$this->wheres[] = $wpdb->prepare( 'p.post_author = %d', $this->author->ID );
+			$this->where_clauses[] = $wpdb->prepare( 'p.post_author = %d', $this->author->ID );
 		}
 	}
 
 	private function start_date_where() {
 		global $wpdb;
-		$timestamp = strtotime( $this->filters['start_date'] );
+		$timestamp = $this->filters['start_date'] ? strtotime( $this->filters['start_date'] ) : null;
 		if ( ! $timestamp ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_date >= %s', date( 'Y-m-d 00:00:00', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$this->where_clauses[] = $wpdb->prepare( 'p.post_date >= %s', date( 'Y-m-d 00:00:00', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	private function end_date_where() {
 		global $wpdb;
+		if ( ! $this->filters['end_date'] ) {
+			return;
+		}
 		if ( preg_match( '/^\d{4}-\d{2}$/', $this->filters['end_date'] ) ) {
 			$timestamp = $this->get_timestamp_for_the_last_day_of_a_month( $this->filters['end_date'] );
 		} else {
@@ -270,7 +274,7 @@ class WP_Export_Query {
 		if ( ! $timestamp ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_date <= %s', date( 'Y-m-d 23:59:59', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$this->where_clauses[] = $wpdb->prepare( 'p.post_date <= %s', date( 'Y-m-d 23:59:59', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	private function start_id_where() {
@@ -280,7 +284,7 @@ class WP_Export_Query {
 		if ( 0 === $start_id ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.ID >= %d', $start_id );
+		$this->where_clauses[] = $wpdb->prepare( 'p.ID >= %d', $start_id );
 	}
 
 	private function get_timestamp_for_the_last_day_of_a_month( $yyyy_mm ) {
@@ -296,9 +300,9 @@ class WP_Export_Query {
 		if ( ! $category ) {
 			return;
 		}
-		$this->category = $category;
-		$this->joins[]  = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
-		$this->wheres[] = $wpdb->prepare( 'tr.term_taxonomy_id = %d', $category->term_taxonomy_id );
+		$this->category        = $category;
+		$this->joins[]         = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
+		$this->where_clauses[] = $wpdb->prepare( 'tr.term_taxonomy_id = %d', $category->term_taxonomy_id );
 	}
 
 	private function max_num_posts() {
@@ -315,7 +319,7 @@ class WP_Export_Query {
 			return [];
 		}
 		$attachment_ids = [];
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assigment is part of the break condition.
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assignment is part of the break condition.
 		while ( $batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK ) ) {
 			$post_parent_condition = _wp_export_build_IN_condition( 'post_parent', $batch_of_post_ids );
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Escaped in wpcli_export_build_in_condition() function.
