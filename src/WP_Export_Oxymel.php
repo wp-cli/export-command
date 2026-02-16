@@ -21,9 +21,9 @@ class WP_Export_Oxymel extends Oxymel {
 				if ( ! wp_is_valid_utf8( $text ) ) {
 					$text = mb_convert_encoding( $text, 'UTF-8' );
 				}
+				// @phpstan-ignore function.deprecated
 			} elseif ( ! seems_utf8( $text ) ) { // phpcs:ignore WordPress.WP.DeprecatedFunctions.seems_utf8Found
 				$text = mb_convert_encoding( $text, 'UTF-8' );
-
 			}
 		}
 		return parent::cdata( $text );

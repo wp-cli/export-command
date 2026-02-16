@@ -138,8 +138,13 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
-		$GLOBALS['wp_query']->in_the_loop = true;
-		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
+		/**
+		 * @var \WP_Query $wp_query
+		 */
+		global $wp_query;
+
+		$wp_query->in_the_loop = true;
+		$previous_global_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
@@ -208,6 +213,9 @@ class WP_Export_Query {
 		if ( isset( $post_types_filters['name'] ) && is_array( $post_types_filters['name'] ) ) {
 			$post_types = [];
 			foreach ( $post_types_filters['name'] as $post_type ) {
+				/**
+				 * @var string $post_type
+				 */
 				if ( post_type_exists( $post_type ) ) {
 					$post_types[] = $post_type;
 				}
@@ -327,7 +335,7 @@ class WP_Export_Query {
 
 	private function find_user_from_any_object( $user ) {
 		if ( is_numeric( $user ) ) {
-			return get_user_by( 'id', $user );
+			return get_user_by( 'id', (int) $user );
 		} elseif ( is_string( $user ) ) {
 			return get_user_by( 'login', $user );
 		} elseif ( isset( $user->ID ) ) {
@@ -338,10 +346,10 @@ class WP_Export_Query {
 
 	private function find_category_from_any_object( $category ) {
 		if ( is_numeric( $category ) ) {
-			return get_term( $category, 'category' );
+			return get_term( (int) $category, 'category' );
 		} elseif ( is_string( $category ) ) {
 			$term = term_exists( $category, 'category' );
-			return isset( $term['term_id'] ) ? get_term( $term['term_id'], 'category' ) : false;
+			return isset( $term['term_id'] ) ? get_term( (int) $term['term_id'], 'category' ) : false;
 		} elseif ( isset( $category->term_id ) ) {
 			return get_term( $category->term_id, 'category' );
 		}
