@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @param array{filters?: array<mixed>, format?: class-string<WP_Export_WXR_Formatter>, writer?: class-string<WP_Export_Returner>, writer_args?: mixed} $args
+ * @param array{filters?: array<mixed>, format?: class-string<WP_Export_WXR_Formatter>, writer?: class-string<WP_Export_Base_Writer>, writer_args?: mixed} $args
  */
 function wp_export( $args = array() ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Renaming breaks Phar compat.
 	$defaults = array(
@@ -12,7 +12,7 @@ function wp_export( $args = array() ) { // phpcs:ignore WordPress.NamingConventi
 	);
 
 	/**
-	 * @var array{filters: array<mixed>, format: class-string<WP_Export_WXR_Formatter>, writer: class-string<WP_Export_Returner>, writer_args: mixed} $args
+	 * @var array{filters: array<mixed>, format: class-string<WP_Export_WXR_Formatter>, writer: class-string<WP_Export_Base_Writer>, writer_args: mixed} $args
 	 */
 	$args         = wp_parse_args( $args, $defaults );
 	$export_query = new WP_Export_Query( $args['filters'] );

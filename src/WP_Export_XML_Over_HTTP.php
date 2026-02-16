@@ -48,8 +48,12 @@ class WP_Export_XML_Over_HTTP extends WP_Export_Base_Writer {
 	}
 
 	protected function send_headers() {
+		/**
+		 * @var string $charset
+		 */
+		$charset = get_option( 'blog_charset' );
 		header( 'Content-Description: File Transfer' );
 		header( 'Content-Disposition: attachment; filename=' . $this->file_name );
-		header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ), true );
+		header( 'Content-Type: text/xml; charset=' . $charset, true );
 	}
 }

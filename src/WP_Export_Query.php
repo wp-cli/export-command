@@ -122,7 +122,7 @@ class WP_Export_Query {
 		}
 		$custom_taxonomies = get_taxonomies( [ '_builtin' => false ] );
 		// phpcs:ignore WordPress.WP.DeprecatedParameters.Get_termsParam2Found -- Deprecated, but we need to support older versions of WordPress.
-		$custom_terms = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] ); // @phpstan-ignore-line
+		$custom_terms = (array) get_terms( $custom_taxonomies, [ 'get' => 'all' ] );
 		$custom_terms = $this->process_orphaned_terms( $custom_terms );
 		$custom_terms = self::topologically_sort_terms( $custom_terms );
 		return $custom_terms;
@@ -137,8 +137,13 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
-		$GLOBALS['wp_query']->in_the_loop = true;
-		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
+		/**
+		 * @var \WP_Query $wp_query
+		 */
+		global $wp_query;
+
+		$wp_query->in_the_loop = true;
+		$previous_global_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
@@ -207,6 +212,9 @@ class WP_Export_Query {
 		if ( isset( $post_types_filters['name'] ) && is_array( $post_types_filters['name'] ) ) {
 			$post_types = [];
 			foreach ( $post_types_filters['name'] as $post_type ) {
+				/**
+				 * @var string $post_type
+				 */
 				if ( post_type_exists( $post_type ) ) {
 					$post_types[] = $post_type;
 				}

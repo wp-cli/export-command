@@ -40,7 +40,12 @@ class WP_Post_IDs_Iterator implements Iterator {
 	private $global_index;
 
 	public function __construct( $post_ids, $limit = null ) {
-		$this->db       = $GLOBALS['wpdb'];
+		/**
+		 * @var \wpdb $wpdb
+		 */
+		global $wpdb;
+
+		$this->db       = $wpdb;
 		$this->post_ids = $post_ids;
 		$this->ids_left = $post_ids;
 		if ( ! is_null( $limit ) ) {
