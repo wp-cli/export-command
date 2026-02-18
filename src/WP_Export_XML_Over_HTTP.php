@@ -1,9 +1,20 @@
 <?php
 
-
 class WP_Export_XML_Over_HTTP extends WP_Export_Base_Writer {
+	/**
+	 * @var string
+	 */
+	private $result;
+
+	/**
+	 * @var string
+	 */
 	private $file_name;
 
+	/**
+	 * @param WP_Export_WXR_Formatter $formatter
+	 * @param string                  $file_name
+	 */
 	public function __construct( $formatter, $file_name ) {
 		parent::__construct( $formatter );
 		$this->file_name = $file_name;
@@ -37,8 +48,12 @@ class WP_Export_XML_Over_HTTP extends WP_Export_Base_Writer {
 	}
 
 	protected function send_headers() {
+		/**
+		 * @var string $charset
+		 */
+		$charset = get_option( 'blog_charset' );
 		header( 'Content-Description: File Transfer' );
 		header( 'Content-Disposition: attachment; filename=' . $this->file_name );
-		header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ), true );
+		header( 'Content-Type: text/xml; charset=' . $charset, true );
 	}
 }

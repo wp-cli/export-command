@@ -1,16 +1,51 @@
 <?php
 
+/**
+ * @implements \Iterator<int, object{}>
+ */
 class WP_Post_IDs_Iterator implements Iterator {
-	private $limit = 100;
-	private $post_ids;
-	private $ids_left;
-	private $results          = array();
-	private $global_index     = 0;
-	private $index_in_results = 0;
+	/**
+	 * @var \wpdb
+	 */
 	private $db;
 
+	/**
+	 * @var int
+	 */
+	private $limit = 100;
+
+	/**
+	 * @var int[]
+	 */
+	private $post_ids;
+
+	/**
+	 * @var int[]
+	 */
+	private $ids_left;
+
+	/**
+	 * @var object[]
+	 */
+	private $results = array();
+
+	/**
+	 * @var int
+	 */
+	private $index_in_results;
+
+	/**
+	 * @var int
+	 */
+	private $global_index;
+
 	public function __construct( $post_ids, $limit = null ) {
-		$this->db       = $GLOBALS['wpdb'];
+		/**
+		 * @var \wpdb $wpdb
+		 */
+		global $wpdb;
+
+		$this->db       = $wpdb;
 		$this->post_ids = $post_ids;
 		$this->ids_left = $post_ids;
 		if ( ! is_null( $limit ) ) {
@@ -61,7 +96,8 @@ class WP_Post_IDs_Iterator implements Iterator {
 	private function load_next_posts_from_db() {
 		$next_batch_post_ids = array_splice( $this->ids_left, 0, $this->limit );
 		$in_post_ids_sql     = _wp_export_build_IN_condition( 'ID', $next_batch_post_ids );
-		$this->results       = $this->db->get_results( "SELECT * FROM {$this->db->posts} WHERE {$in_post_ids_sql}" );
+		$results             = $this->db->get_results( "SELECT * FROM {$this->db->posts} WHERE {$in_post_ids_sql}" );
+		$this->results       = is_array( $results ) ? $results : array();
 		if ( ! $this->results ) {
 			if ( $this->db->last_error ) {
 				throw new WP_Iterator_Exception( "Database error: {$this->db->last_error}" );

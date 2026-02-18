@@ -26,8 +26,9 @@ class WP_Export_Query {
 	private $post_ids;
 	private $filters;
 
-	private $wheres = [];
-	private $joins  = [];
+	private $where_clauses = [];
+
+	private $joins = [];
 
 	private $author;
 	private $category;
@@ -137,8 +138,13 @@ class WP_Export_Query {
 	}
 
 	public function exportify_post( $post ) {
-		$GLOBALS['wp_query']->in_the_loop = true;
-		$previous_global_post             = Utils\get_flag_value( $GLOBALS, 'post' );
+		/**
+		 * @var \WP_Query $wp_query
+		 */
+		global $wp_query;
+
+		$wp_query->in_the_loop = true;
+		$previous_global_post  = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Temporary override.
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
@@ -177,7 +183,7 @@ class WP_Export_Query {
 		$this->start_id_where();
 		$this->category_where();
 
-		$where = implode( ' AND ', array_filter( $this->wheres ) );
+		$where = implode( ' AND ', array_filter( $this->where_clauses ) );
 		if ( $where ) {
 			$where = "WHERE $where";
 		}
@@ -207,6 +213,9 @@ class WP_Export_Query {
 		if ( isset( $post_types_filters['name'] ) && is_array( $post_types_filters['name'] ) ) {
 			$post_types = [];
 			foreach ( $post_types_filters['name'] as $post_type ) {
+				/**
+				 * @var string $post_type
+				 */
 				if ( post_type_exists( $post_type ) ) {
 					$post_types[] = $post_type;
 				}
@@ -216,7 +225,7 @@ class WP_Export_Query {
 		}
 
 		if ( ! $post_types ) {
-			$this->wheres[] = 'p.post_type IS NULL';
+			$this->where_clauses[] = 'p.post_type IS NULL';
 			return;
 		}
 
@@ -224,22 +233,22 @@ class WP_Export_Query {
 			unset( $post_types['attachment'] );
 		}
 
-		$this->wheres[] = _wp_export_build_IN_condition( 'p.post_type', $post_types );
+		$this->where_clauses[] = _wp_export_build_IN_condition( 'p.post_type', $post_types );
 	}
 
 	private function status_where() {
 		global $wpdb;
 		if ( ! $this->filters['status'] ) {
-			$this->wheres[] = "p.post_status != 'auto-draft'";
+			$this->where_clauses[] = "p.post_status != 'auto-draft'";
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_status = %s', $this->filters['status'] );
+		$this->where_clauses[] = $wpdb->prepare( 'p.post_status = %s', $this->filters['status'] );
 	}
 
 	private function author_where() {
 		global $wpdb;
 		if ( is_object( $this->author ) && property_exists( $this->author, 'ID' ) ) {
-			$this->wheres[] = $wpdb->prepare( 'p.post_author = %d', $this->author->ID );
+			$this->where_clauses[] = $wpdb->prepare( 'p.post_author = %d', $this->author->ID );
 		}
 	}
 
@@ -249,7 +258,7 @@ class WP_Export_Query {
 		if ( ! $timestamp ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_date >= %s', date( 'Y-m-d 00:00:00', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$this->where_clauses[] = $wpdb->prepare( 'p.post_date >= %s', date( 'Y-m-d 00:00:00', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	private function end_date_where() {
@@ -265,7 +274,7 @@ class WP_Export_Query {
 		if ( ! $timestamp ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.post_date <= %s', date( 'Y-m-d 23:59:59', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$this->where_clauses[] = $wpdb->prepare( 'p.post_date <= %s', date( 'Y-m-d 23:59:59', $timestamp ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
 	private function start_id_where() {
@@ -275,7 +284,7 @@ class WP_Export_Query {
 		if ( 0 === $start_id ) {
 			return;
 		}
-		$this->wheres[] = $wpdb->prepare( 'p.ID >= %d', $start_id );
+		$this->where_clauses[] = $wpdb->prepare( 'p.ID >= %d', $start_id );
 	}
 
 	private function get_timestamp_for_the_last_day_of_a_month( $yyyy_mm ) {
@@ -291,9 +300,9 @@ class WP_Export_Query {
 		if ( ! $category ) {
 			return;
 		}
-		$this->category = $category;
-		$this->joins[]  = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
-		$this->wheres[] = $wpdb->prepare( 'tr.term_taxonomy_id = %d', $category->term_taxonomy_id );
+		$this->category        = $category;
+		$this->joins[]         = "INNER JOIN {$wpdb->term_relationships} AS tr ON (p.ID = tr.object_id)";
+		$this->where_clauses[] = $wpdb->prepare( 'tr.term_taxonomy_id = %d', $category->term_taxonomy_id );
 	}
 
 	private function max_num_posts() {
@@ -310,7 +319,7 @@ class WP_Export_Query {
 			return [];
 		}
 		$attachment_ids = [];
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assigment is part of the break condition.
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition -- Assignment is part of the break condition.
 		while ( $batch_of_post_ids = array_splice( $post_ids, 0, self::QUERY_CHUNK ) ) {
 			$post_parent_condition = _wp_export_build_IN_condition( 'post_parent', $batch_of_post_ids );
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Escaped in wpcli_export_build_in_condition() function.
@@ -326,7 +335,7 @@ class WP_Export_Query {
 
 	private function find_user_from_any_object( $user ) {
 		if ( is_numeric( $user ) ) {
-			return get_user_by( 'id', $user );
+			return get_user_by( 'id', (int) $user );
 		} elseif ( is_string( $user ) ) {
 			return get_user_by( 'login', $user );
 		} elseif ( isset( $user->ID ) ) {
@@ -337,10 +346,10 @@ class WP_Export_Query {
 
 	private function find_category_from_any_object( $category ) {
 		if ( is_numeric( $category ) ) {
-			return get_term( $category, 'category' );
+			return get_term( (int) $category, 'category' );
 		} elseif ( is_string( $category ) ) {
 			$term = term_exists( $category, 'category' );
-			return isset( $term['term_id'] ) ? get_term( $term['term_id'], 'category' ) : false;
+			return isset( $term['term_id'] ) ? get_term( (int) $term['term_id'], 'category' ) : false;
 		} elseif ( isset( $category->term_id ) ) {
 			return get_term( $category->term_id, 'category' );
 		}

@@ -12,7 +12,14 @@ define( 'WXR_VERSION', '1.2' ); //phpcs:ignore WordPress.NamingConventions.Prefi
  * Responsible for formatting the data in WP_Export_Query to WXR
  */
 class WP_Export_WXR_Formatter {
+	/**
+	 * @var WP_Export_Query
+	 */
 	private $export;
+
+	/**
+	 * @var string
+	 */
 	private $wxr_version;
 
 	public function __construct( $export ) {
@@ -20,6 +27,9 @@ class WP_Export_WXR_Formatter {
 		$this->wxr_version = WXR_VERSION;
 	}
 
+	/**
+	 * @param array<string> $requested_sections
+	 */
 	public function before_posts( $requested_sections = [] ) {
 		$available_sections = [
 			'header',
@@ -74,6 +84,7 @@ class WP_Export_WXR_Formatter {
     contained in this file into your site.
 
 COMMENT;
+		// @phpstan-ignore property.private
 		return $oxymel
 			->xml
 			->comment( $comment )
@@ -95,6 +106,7 @@ COMMENT;
 	public function site_metadata() {
 		$oxymel   = new Oxymel();
 		$metadata = $this->export->site_metadata();
+		// @phpstan-ignore method.notFound
 		return $oxymel
 			->title( $metadata['name'] )
 			->link( $metadata['url'] )
@@ -135,6 +147,7 @@ COMMENT;
 				->tag( 'wp:category_parent', $category->parent_slug )
 				->optional_cdata( 'wp:cat_name', $category->name )
 				->optional_cdata( 'wp:category_description', $category->description )
+				->oxymel( $this->term_meta( $category ) )
 				->end;
 		}
 		return $oxymel->to_string();
@@ -170,16 +183,21 @@ COMMENT;
 	}
 
 	public function post( $post ) {
-		$oxymel                           = new WP_Export_Oxymel();
-		$GLOBALS['wp_query']->in_the_loop = true;
+		/**
+		 * @var \WP_Query $wp_query
+		 */
+		global $wp_query;
+		$oxymel                = new WP_Export_Oxymel();
+		$wp_query->in_the_loop = true;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Intentional.
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
 
+		// @phpstan-ignore property.notFound
 		$oxymel->item->contains
 			->tag( 'title' )->contains->cdata( apply_filters( 'the_title_export', $post->post_title ) )->end // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
 			->link( esc_url( apply_filters( 'the_permalink_rss', get_permalink() ) ) ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress native hook.
-			->pubDate( mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ) )
+			->pubDate( mysql2date( 'D, d M Y H:i:s +0000', (string) get_post_time( 'Y-m-d H:i:s', true ), false ) )
 			->tag( 'dc:creator', get_the_author_meta( 'login' ) )
 			->guid( esc_url( get_the_guid() ), [ 'isPermaLink' => 'false' ] )
 			->description( '' )
@@ -201,6 +219,7 @@ COMMENT;
 			->tag( 'wp:is_sticky', $post->is_sticky )
 			->optional( 'wp:attachment_url', wp_get_attachment_url( $post->ID ) );
 		foreach ( $post->terms as $term ) {
+			// @phpstan-ignore method.notFound
 			$oxymel
 			->category(
 				[
@@ -234,13 +253,15 @@ COMMENT;
 				->oxymel( $this->comment_meta( $comment ) )
 				->end;
 		}
-		$oxymel
-			->end;
+
+		// @phpstan-ignore property.notFound, expr.resultUnused
+		$oxymel->end;
 		return $oxymel->to_string();
 	}
 
 	public function footer() {
 		$oxymel = new Oxymel();
+		// @phpstan-ignore property.notFound
 		return $oxymel->close_channel->close_rss->to_string();
 	}
 
@@ -259,6 +280,7 @@ COMMENT;
 				$oxymel
 				->optional_cdata( 'wp:term_name', $term->name )
 				->optional_cdata( 'wp:term_description', $term->description )
+				->oxymel( $this->term_meta( $term ) )
 				->end;
 		}
 		return $oxymel->to_string();
@@ -273,6 +295,22 @@ COMMENT;
 		$oxymel = new WP_Export_Oxymel();
 		foreach ( $metas as $meta ) {
 			$oxymel->tag( 'wp:commentmeta' )->contains
+				->tag( 'wp:meta_key', $meta->meta_key )
+				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
+			->end;
+		}
+		return $oxymel;
+	}
+
+	protected function term_meta( $term ) {
+		global $wpdb;
+		$metas = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->termmeta WHERE term_id = %d", $term->term_id ) );
+		if ( ! $metas ) {
+			return new Oxymel();
+		}
+		$oxymel = new WP_Export_Oxymel();
+		foreach ( $metas as $meta ) {
+			$oxymel->tag( 'wp:termmeta' )->contains
 				->tag( 'wp:meta_key', $meta->meta_key )
 				->tag( 'wp:meta_value' )->contains->cdata( $meta->meta_value )->end
 			->end;
