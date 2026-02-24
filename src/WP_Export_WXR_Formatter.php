@@ -84,8 +84,8 @@ class WP_Export_WXR_Formatter {
     contained in this file into your site.
 
 COMMENT;
-		// @phpstan-ignore property.private
 		return $oxymel
+			// @phpstan-ignore property.private
 			->xml
 			->comment( $comment )
 			->raw( $wp_generator_tag )
@@ -106,8 +106,8 @@ COMMENT;
 	public function site_metadata() {
 		$oxymel   = new Oxymel();
 		$metadata = $this->export->site_metadata();
-		// @phpstan-ignore method.notFound
 		return $oxymel
+			// @phpstan-ignore method.notFound
 			->title( $metadata['name'] )
 			->link( $metadata['url'] )
 			->description( $metadata['description'] )
@@ -219,8 +219,8 @@ COMMENT;
 			->tag( 'wp:is_sticky', $post->is_sticky )
 			->optional( 'wp:attachment_url', wp_get_attachment_url( $post->ID ) );
 		foreach ( $post->terms as $term ) {
-			// @phpstan-ignore method.notFound
 			$oxymel
+			// @phpstan-ignore method.notFound
 			->category(
 				[
 					'domain'   => $term->taxonomy,
