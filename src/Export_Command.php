@@ -21,6 +21,11 @@ define( 'WP_CLI_EXPORT_COMMAND_NO_SPLIT', '-1' );
 class Export_Command extends WP_CLI_Command {
 
 	/**
+	 * Maximum length of the site name component in the export filename.
+	 */
+	const MAX_FILENAME_SITENAME_LENGTH = 50;
+
+	/**
 	* Initialize the array of arguments that will be eventually be passed to export_wp.
 	*
 	* @var array
@@ -222,6 +227,7 @@ class Export_Command extends WP_CLI_Command {
 		if ( empty( $sitename ) ) {
 			$sitename = 'site';
 		}
+		$sitename = substr( $sitename, 0, self::MAX_FILENAME_SITENAME_LENGTH );
 		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 

@@ -648,6 +648,20 @@ Feature: Export content.
       000.xml
       """
 
+  Scenario: Export a site with a very long site name produces a filename within a reasonable length
+    Given a WP install
+    And I run `wp option update blogname 'This is a very long site name that exceeds fifty characters and should be truncated in the export filename'`
+
+    When I run `wp export`
+    Then STDOUT should contain:
+      """
+      thisisaverylongsitenamethatexceedsfiftycharactersa.wordpress.
+      """
+    And STDOUT should not contain:
+      """
+      thisisaverylongsitenamethatexceedsfiftycharactersandshouldbetruncated
+      """
+
   @require-wp-5.2 @require-mysql
   Scenario: Export a site and skip the comments
     Given a WP install
