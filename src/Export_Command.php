@@ -227,7 +227,7 @@ class Export_Command extends WP_CLI_Command {
 		if ( empty( $sitename ) ) {
 			$sitename = 'site';
 		}
-		$sitename = substr( $sitename, 0, self::MAX_FILENAME_SITENAME_LENGTH );
+		$sitename = function_exists( 'mb_substr' ) ? mb_substr( $sitename, 0, self::MAX_FILENAME_SITENAME_LENGTH ) : substr( $sitename, 0, self::MAX_FILENAME_SITENAME_LENGTH );
 		return str_replace( [ '{site}', '{date}', '{n}' ], [ $sitename, date( 'Y-m-d' ), '%03d' ], $filename_format ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 
