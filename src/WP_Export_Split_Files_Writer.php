@@ -45,9 +45,15 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 			$this->subsequent_sections = array_diff( $this->available_sections, $writer_args['include_once'] );
 		}
 
+		if ( ! empty( $writer_args['exclude'] ) ) {
+			if ( ! empty( $writer_args['exclude'] ) ) {
+				$this->available_sections = array_diff( $this->available_sections, $writer_args['exclude'] );
+			}
+		}
+
 		$this->destination_directory = $writer_args['destination_directory'];
 		$this->filename_template     = $writer_args['filename_template'];
-		$this->before_posts_xml      = $this->formatter->before_posts();
+		$this->before_posts_xml      = $this->formatter->before_posts( $this->available_sections );
 		$this->after_posts_xml       = $this->formatter->after_posts();
 	}
 
