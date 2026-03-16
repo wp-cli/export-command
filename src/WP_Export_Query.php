@@ -1,6 +1,5 @@
 <?php
 
-use WP_CLI\Utils;
 
 /**
  * Represents a set of posts and other site data to be exported.
