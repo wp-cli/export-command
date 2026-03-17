@@ -22,7 +22,11 @@ class WP_Export_Split_Files_Writer extends WP_Export_Base_Writer {
 	);
 	private $subsequent_sections = array();
 
-	public function __construct( $formatter, $writer_args = [] ) {
+	/**
+	 * @param class-string $formatter
+	 * @param array{max_file_size: int, destination_directory: string, filename_template: string, include_once: string[], exclude: string[]} $writer_args
+	 */
+	public function __construct( $formatter, $writer_args ) {
 		parent::__construct( $formatter );
 
 		if ( ! defined( 'MB_IN_BYTES' ) ) {
