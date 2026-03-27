@@ -3,7 +3,7 @@ wp-cli/export-command
 
 Exports WordPress content to a WXR file.
 
-[![Testing](https://github.com/wp-cli/export-command/actions/workflows/testing.yml/badge.svg)](https://github.com/wp-cli/export-command/actions/workflows/testing.yml)
+[![Testing](https://github.com/wp-cli/export-command/actions/workflows/testing.yml/badge.svg)](https://github.com/wp-cli/export-command/actions/workflows/testing.yml) [![Code Coverage](https://codecov.io/gh/wp-cli/export-command/branch/main/graph/badge.svg)](https://codecov.io/gh/wp-cli/export-command/tree/main)
 
 Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contributing) | [Support](#support)
 
