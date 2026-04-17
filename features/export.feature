@@ -805,10 +805,14 @@ Feature: Export content.
       <wp:tag>
       """
 
+  @require-mysql
   Scenario: Export without splitting the dump
     Given a WP install
-    # Make export file > 15MB so will split by default. Need to split into 4 * 4MB to stay below 10% of default redo log size of 48MB, otherwise get MySQL error. Use `wp eval` + `str_repeat` because SQLite has no REPEAT() function. All four rows go through a single `wp eval` to avoid four WordPress bootstraps.
-    And I run `wp eval "update_post_meta(1, '_dummy_0', str_repeat('A', 4 * 1024 * 1024)); update_post_meta(1, '_dummy_1', str_repeat('A', 4 * 1024 * 1024)); update_post_meta(1, '_dummy_2', str_repeat('A', 4 * 1024 * 1024)); update_post_meta(1, '_dummy_3', str_repeat('A', 4 * 1024 * 1024));"`
+    # Make export file > 15MB so will split by default. Need to split into 4 * 4MB to stay below 10% of default redo log size of 48MB, otherwise get MySQL error.
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
+    And I run `wp db query "INSERT INTO wp_postmeta (post_id, meta_key, meta_value) VALUES (1, '_dummy', REPEAT( 'A', 4 * 1024 * 1024 ) );"`
 
     When I run `wp export`
     Then STDOUT should contain:
