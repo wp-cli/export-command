@@ -271,7 +271,6 @@ class Export_Command extends WP_CLI_Command {
 
 		foreach ( $args as $key => $value ) {
 			if ( is_callable( [ $this, 'check_' . $key ] ) ) {
-				/** @phpstan-ignore argument.type */
 				$result = call_user_func( [ $this, 'check_' . $key ], $value );
 				if ( false === $result ) {
 					$has_errors = true;
@@ -291,8 +290,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $path
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_dir( $path ) {
 		if ( empty( $path ) ) {
@@ -310,8 +307,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $date
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_start_date( $date ) {
 		if ( null === $date ) {
@@ -329,8 +324,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $date
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_end_date( $date ) {
 		if ( null === $date ) {
@@ -348,8 +341,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $post_type
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_post_type( $post_type ) {
 		if ( null === $post_type || 'any' === $post_type ) {
@@ -377,8 +368,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $post_type
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_post_type__not_in( $post_type ) {
 		if ( null === $post_type ) {
@@ -406,8 +395,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $post__in
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_post__in( $post__in ) {
 		if ( null === $post__in ) {
@@ -427,8 +414,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $start_id
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_start_id( $start_id ) {
 		if ( null === $start_id ) {
@@ -449,8 +434,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $author
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_author( $author ) {
 		if ( null === $author ) {
@@ -486,7 +469,7 @@ class Export_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * @phpstan-ignore method.unused
+	 * @param int|string|null $num
 	 */
 	private function check_max_num_posts( $num ) {
 		if ( null !== $num && ( ! is_numeric( $num ) || $num <= 0 ) ) {
@@ -501,8 +484,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $category
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_category( $category ) {
 		if ( null === $category ) {
@@ -524,8 +505,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $status
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_post_status( $status ) {
 		if ( null === $status ) {
@@ -549,8 +528,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string|null $skip
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_skip_comments( $skip ) {
 		if ( null === $skip ) {
@@ -567,8 +544,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string|null $skip
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_skip_authors( $skip ) {
 		if ( null === $skip ) {
@@ -585,8 +560,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string|null $skip
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_skip_terms( $skip ) {
 		if ( null === $skip ) {
@@ -603,8 +576,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $size
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_max_file_size( $size ) {
 		if ( ! is_numeric( $size ) ) {
@@ -619,8 +590,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $once
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_include_once( $once ) {
 		if ( null === $once ) {
@@ -642,8 +611,6 @@ class Export_Command extends WP_CLI_Command {
 
 	/**
 	 * @param string $allow_orphan_terms
-	 *
-	 * @phpstan-ignore method.unused
 	 */
 	private function check_allow_orphan_terms( $allow_orphan_terms ) {
 		if ( null === $allow_orphan_terms ) {
