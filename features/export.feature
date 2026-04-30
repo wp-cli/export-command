@@ -918,7 +918,7 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_ATTACHMENT_POST_ID}
 
-    When I run `wp media import 'http://wp-cli.org/behat-data/codeispoetry.png' --post_id={EXPORT_ATTACHMENT_POST_ID} --porcelain`
+    When I run `wp media import 'http://wp-cli.github.io/behat-data/codeispoetry.png' --post_id={EXPORT_ATTACHMENT_POST_ID} --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {EXPORT_ATTACHMENT_ID}
 
@@ -926,7 +926,7 @@ Feature: Export content.
     Then STDOUT should be a number
     And save STDOUT as {IGNORE_ATTACHMENT_POST_ID}
 
-    When I run `wp media import 'http://wp-cli.org/behat-data/white-150-square.jpg' --post_id={IGNORE_ATTACHMENT_POST_ID} --porcelain`
+    When I run `wp media import 'http://wp-cli.github.io/behat-data/white-150-square.jpg' --post_id={IGNORE_ATTACHMENT_POST_ID} --porcelain`
     Then STDOUT should be a number
     And save STDOUT as {IGNORE_ATTACHMENT_ID}
 
