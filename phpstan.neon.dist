@@ -14,3 +14,21 @@ parameters:
     - identifier: missingType.property
     - identifier: missingType.parameter
     - identifier: missingType.return
+
+    # johnbillion/wp-compat checks every WordPress symbol against the WordPress 4.9
+    # baseline that wp-cli-tests configures, and reports anything newer.
+
+    # WordPress 6.0 and 5.3 only formalized the already documented `...$args` and
+    # `...$arg` parameters of `apply_filters()` and `do_action()` by adding them to the
+    # function signatures. Additional arguments were collected through `func_get_args()`
+    # before that, so passing them has always worked. Both identifiers already name one
+    # specific parameter of one specific function.
+    -
+      identifier: WPCompat.parameterNotAvailable.applyfilters.args
+      path: src/WP_Export_Query.php
+    -
+      identifier: WPCompat.parameterNotAvailable.doaction.arg
+      paths:
+        - src/WP_Export_Returner.php
+        - src/WP_Export_Split_Files_Writer.php
+        - src/WP_Export_XML_Over_HTTP.php
