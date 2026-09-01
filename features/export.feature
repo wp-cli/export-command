@@ -1000,11 +1000,15 @@ Feature: Export content.
       """
       <?php
       function wp_cli_region_taxonomy() {
-          register_taxonomy( 'region', 'post', [
-              'label'        => 'Region',
-              'rewrite'      => [ 'slug' => 'region' ],
-              'hierarchical' => true,
-          ] );
+          register_taxonomy(
+              'region',
+              'post',
+              [
+                  'label'        => 'Region',
+                  'rewrite'      => [ 'slug' => 'region' ],
+                  'hierarchical' => true,
+              ]
+          );
       }
       add_action( 'init', 'wp_cli_region_taxonomy' );
       """
