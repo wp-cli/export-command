@@ -1365,3 +1365,67 @@ Feature: Export content.
       """
       <wp:meta_value><![CDATA[term_metavalue]]></wp:meta_value>
       """
+
+  Scenario: Export attaches terms, meta and comments to the right posts across batches
+    Given a WP install
+    And I run `wp site empty --yes`
+    And I run `wp post generate --count=150`
+    And I run `wp post create --post_title='Last post' --post_status=publish --tags_input='alpha,beta' --porcelain`
+    And save STDOUT as {LAST_POST_ID}
+    And I run `wp post meta add {LAST_POST_ID} my_meta_key my_meta_value`
+    And I run `wp post meta add {LAST_POST_ID} _edit_lock 123:1`
+    And I run `wp comment create --comment_post_ID={LAST_POST_ID} --comment_content='Approved comment' --comment_approved=1 --porcelain`
+    And save STDOUT as {COMMENT_ID}
+    And I run `wp comment meta add {COMMENT_ID} my_comment_meta_key my_comment_meta_value`
+    And I run `wp comment create --comment_post_ID={LAST_POST_ID} --comment_content='Spam comment' --comment_approved=spam`
+    And a check-export.php file:
+      """
+      <?php
+      $xml   = simplexml_load_file( $args[0] );
+      $found = 0;
+      foreach ( $xml->channel->item as $item ) {
+        $wp    = $item->children( 'http://wordpress.org/export/1.2/' );
+        $tags  = array();
+        foreach ( $item->category as $category ) {
+          if ( 'post_tag' === (string) $category['domain'] ) {
+            $tags[] = (string) $category['nicename'];
+          }
+        }
+        $meta = array();
+        foreach ( $wp->postmeta as $postmeta ) {
+          if ( in_array( (string) $postmeta->meta_key, array( '_pingme', '_encloseme' ), true ) ) {
+            continue;
+          }
+          $meta[] = (string) $postmeta->meta_key . '=' . (string) $postmeta->meta_value;
+        }
+        $comments = array();
+        foreach ( $wp->comment as $comment ) {
+          $comment_meta = array();
+          foreach ( $comment->commentmeta as $commentmeta ) {
+            $comment_meta[] = (string) $commentmeta->meta_key . '=' . (string) $commentmeta->meta_value;
+          }
+          $comments[] = (string) $comment->comment_content . ' [' . implode( ',', $comment_meta ) . ']';
+        }
+        if ( (string) $wp->post_id === '{LAST_POST_ID}' ) {
+          ++$found;
+          echo 'tags: ' . implode( ',', $tags ) . "\n";
+          echo 'meta: ' . implode( ',', $meta ) . "\n";
+          echo 'comments: ' . implode( ',', $comments ) . "\n";
+        } elseif ( $tags || $meta || $comments ) {
+          echo 'unexpected data on post ' . $wp->post_id . "\n";
+        }
+      }
+      echo "found: $found\n";
+      """
+
+    When I run `wp export --post_type=post`
+    Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
+
+    When I run `wp eval-file check-export.php {EXPORT_FILE}`
+    Then STDOUT should be:
+      """
+      tags: alpha,beta
+      meta: my_meta_key=my_meta_value
+      comments: Approved comment [my_comment_meta_key=my_comment_meta_value]
+      found: 1
+      """
