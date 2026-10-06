@@ -1378,6 +1378,19 @@ Feature: Export content.
     And save STDOUT as {COMMENT_ID}
     And I run `wp comment meta add {COMMENT_ID} my_comment_meta_key my_comment_meta_value`
     And I run `wp comment create --comment_post_ID={LAST_POST_ID} --comment_content='Spam comment' --comment_approved=spam`
+    And a wp-content/mu-plugins/skip-meta.php file:
+      """
+      <?php
+      // Only export meta while the post it belongs to is the current post.
+      add_filter(
+        'wxr_export_skip_postmeta',
+        function ( $skip, $meta_key, $meta ) {
+          return $skip || (int) $meta->post_id !== get_the_ID();
+        },
+        10,
+        3
+      );
+      """
     And a check-export.php file:
       """
       <?php

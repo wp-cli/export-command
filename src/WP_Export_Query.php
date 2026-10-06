@@ -37,7 +37,7 @@ class WP_Export_Query {
 	/**
 	 * Terms, meta and comments of the posts in the current batch, keyed by post ID.
 	 *
-	 * @var array<int, array{terms: array<\WP_Term>, meta: array<object>, comments: array<object>}>
+	 * @var array<int, array{terms: array<\WP_Term>, meta: array<\stdClass>, comments: array<\stdClass>}>
 	 */
 	private $batch_data = [];
 
@@ -177,7 +177,7 @@ class WP_Export_Query {
 
 		if ( isset( $this->batch_data[ $post->ID ] ) ) {
 			$post->terms    = $this->batch_data[ $post->ID ]['terms'];
-			$post->meta     = $this->batch_data[ $post->ID ]['meta'];
+			$post->meta     = self::filter_meta_for_export( $this->batch_data[ $post->ID ]['meta'] );
 			$post->comments = $this->batch_data[ $post->ID ]['comments'];
 			unset( $this->batch_data[ $post->ID ] );
 		} else {
@@ -444,7 +444,7 @@ class WP_Export_Query {
 	 *
 	 * Querying them for a whole batch at once avoids several queries per exported post.
 	 * The data is the same as what get_terms_for_post(), get_meta_for_post() and
-	 * get_comments_for_post() return for each post.
+	 * get_comments_for_post() return for each post, except that the meta is not filtered yet.
 	 *
 	 * @param int $post_id ID of the first post of the batch.
 	 */
@@ -509,14 +509,8 @@ class WP_Export_Query {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only
 		$meta_from_db = $wpdb->get_results( "SELECT * FROM $wpdb->postmeta WHERE post_id IN ($in_ids) ORDER BY post_id, meta_id" );
+		// The meta is filtered in exportify_post(), while the post it belongs to is the global post.
 		foreach ( $meta_from_db as $meta ) {
-			if ( '_edit_lock' === $meta->meta_key ) {
-				continue;
-			}
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
-			if ( apply_filters( 'wxr_export_skip_postmeta', false, $meta->meta_key, $meta ) ) {
-				continue;
-			}
 			$meta_by_post[ (int) $meta->post_id ][] = $meta;
 		}
 
@@ -559,6 +553,20 @@ class WP_Export_Query {
 		global $wpdb;
 		$meta_for_export = [];
 		$meta_from_db    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE post_id = %d", $post->ID ) );
+		return self::filter_meta_for_export( $meta_from_db );
+	}
+
+	/**
+	 * Remove the meta that should not be exported.
+	 *
+	 * Called while the post the meta belongs to is the global post, as callbacks
+	 * of the `wxr_export_skip_postmeta` filter may rely on it.
+	 *
+	 * @param array<\stdClass> $meta_from_db Meta rows of a post.
+	 * @return array<\stdClass>
+	 */
+	private static function filter_meta_for_export( $meta_from_db ) {
+		$meta_for_export = [];
 		foreach ( $meta_from_db as $meta ) {
 			if ( '_edit_lock' === $meta->meta_key ) {
 				continue;
