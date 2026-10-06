@@ -1370,7 +1370,7 @@ Feature: Export content.
     Given a WP install
     And I run `wp site empty --yes`
     And I run `wp post generate --count=150`
-    And I run `wp post create --post_title='Last post' --post_status=publish --tags_input='alpha,beta' --porcelain`
+    And I run `wp post create --post_title='Last post' --post_status=publish --tags_input='Zoo,apple,beta' --porcelain`
     And save STDOUT as {LAST_POST_ID}
     And I run `wp post meta add {LAST_POST_ID} my_meta_key my_meta_value`
     And I run `wp post meta add {LAST_POST_ID} _edit_lock 123:1`
@@ -1421,6 +1421,10 @@ Feature: Export content.
         }
         if ( (string) $wp->post_id === '{LAST_POST_ID}' ) {
           ++$found;
+          // The terms should be in the same order as the database returns them for the post.
+          $expected = wp_list_pluck( wp_get_object_terms( (int) $wp->post_id, 'post_tag' ), 'slug' );
+          echo 'tags in database order: ' . ( $tags === $expected ? 'yes' : 'no' ) . "\n";
+          sort( $tags );
           echo 'tags: ' . implode( ',', $tags ) . "\n";
           echo 'meta: ' . implode( ',', $meta ) . "\n";
           echo 'comments: ' . implode( ',', $comments ) . "\n";
@@ -1437,7 +1441,8 @@ Feature: Export content.
     When I run `wp eval-file check-export.php {EXPORT_FILE}`
     Then STDOUT should be:
       """
-      tags: alpha,beta
+      tags in database order: yes
+      tags: apple,beta,zoo
       meta: my_meta_key=my_meta_value
       comments: Approved comment [my_comment_meta_key=my_comment_meta_value]
       found: 1

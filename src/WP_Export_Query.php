@@ -460,7 +460,9 @@ class WP_Export_Query {
 			return;
 		}
 
-		$post_ids = array_map( 'intval', array_slice( $this->post_ids, $this->post_id_positions[ $post_id ], self::QUERY_CHUNK ) );
+		// Load the same chunk of posts that the posts iterator queries, which returns them in no particular order.
+		$start    = intdiv( $this->post_id_positions[ $post_id ], self::QUERY_CHUNK ) * self::QUERY_CHUNK;
+		$post_ids = array_map( 'intval', array_slice( $this->post_ids, $start, self::QUERY_CHUNK ) );
 		$in_ids   = implode( ',', $post_ids );
 
 		$terms_by_post    = array_fill_keys( $post_ids, [] );
@@ -495,15 +497,10 @@ class WP_Export_Query {
 			}
 		}
 
-		// Terms are ordered by name. Order terms with the same name, e.g. a category and a tag,
-		// by their term_taxonomy_id like the query for a single post returns them.
+		// The terms are ordered by name in the database's collation. Order terms with the same name,
+		// e.g. a category and a tag, by their term_taxonomy_id like the query for a single post returns them.
 		foreach ( $terms_by_post as &$terms ) {
-			usort(
-				$terms,
-				static function ( $a, $b ) {
-					return [ $a->name, $a->term_taxonomy_id ] <=> [ $b->name, $b->term_taxonomy_id ];
-				}
-			);
+			$terms = self::order_terms_with_same_name( $terms );
 		}
 		unset( $terms );
 
@@ -539,6 +536,36 @@ class WP_Export_Query {
 				'comments' => $comments_by_post[ $id ],
 			];
 		}
+	}
+
+	/**
+	 * Order runs of terms with the same name by their term_taxonomy_id, keeping the order of the runs.
+	 *
+	 * @param array<\WP_Term> $terms Terms ordered by name.
+	 * @return array<\WP_Term>
+	 */
+	private static function order_terms_with_same_name( $terms ) {
+		$ordered = [];
+		$count   = count( $terms );
+		$i       = 0;
+		while ( $i < $count ) {
+			$run = [ $terms[ $i ] ];
+			++$i;
+			while ( $i < $count && $terms[ $i ]->name === $run[0]->name ) {
+				$run[] = $terms[ $i ];
+				++$i;
+			}
+			if ( count( $run ) > 1 ) {
+				usort(
+					$run,
+					static function ( $a, $b ) {
+						return $a->term_taxonomy_id <=> $b->term_taxonomy_id;
+					}
+				);
+			}
+			array_push( $ordered, ...$run );
+		}
+		return $ordered;
 	}
 
 	private static function get_terms_for_post( $post ) {
