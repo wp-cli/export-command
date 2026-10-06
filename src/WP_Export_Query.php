@@ -452,7 +452,7 @@ class WP_Export_Query {
 		global $wpdb;
 
 		if ( null === $this->post_id_positions ) {
-			$this->post_id_positions = array_flip( array_map( 'intval', $this->post_ids ) );
+			$this->post_id_positions = array_flip( array_map( 'intval', array_values( $this->post_ids ) ) );
 		}
 
 		$this->batch_data = [];
@@ -463,7 +463,10 @@ class WP_Export_Query {
 		// Load the same chunk of posts that the posts iterator queries, which returns them in no particular order.
 		$start    = intdiv( $this->post_id_positions[ $post_id ], self::QUERY_CHUNK ) * self::QUERY_CHUNK;
 		$post_ids = array_map( 'intval', array_slice( $this->post_ids, $start, self::QUERY_CHUNK ) );
-		$in_ids   = implode( ',', $post_ids );
+		if ( ! $post_ids ) {
+			return;
+		}
+		$in_ids = implode( ',', $post_ids );
 
 		$terms_by_post    = array_fill_keys( $post_ids, [] );
 		$meta_by_post     = array_fill_keys( $post_ids, [] );

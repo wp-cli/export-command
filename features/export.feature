@@ -1406,7 +1406,7 @@ Feature: Export content.
           if ( 'post_tag' === (string) $category['domain'] ) {
             $tags[] = (string) $category['nicename'];
           }
-          $terms[] = (string) $category['nicename'];
+          $terms[] = (string) $category;
         }
         $meta = array();
         foreach ( $wp->postmeta as $postmeta ) {
@@ -1425,14 +1425,15 @@ Feature: Export content.
         }
         if ( (string) $wp->post_id === '{LAST_POST_ID}' ) {
           ++$found;
-          // The terms should be in the same order as the database returns them for the post.
-          $expected = wp_list_pluck( wp_get_object_terms( (int) $wp->post_id, get_object_taxonomies( 'post' ) ), 'slug' );
+          // The terms should be in the same order as the database returns them for the post. Compare
+          // their names, as the database can return terms with the same name in any order.
+          $expected = wp_list_pluck( wp_get_object_terms( (int) $wp->post_id, get_object_taxonomies( 'post' ) ), 'name' );
           echo 'terms in database order: ' . ( $terms === $expected ? 'yes' : 'no' ) . "\n";
           sort( $tags );
           echo 'tags: ' . implode( ',', $tags ) . "\n";
           echo 'meta: ' . implode( ',', $meta ) . "\n";
           echo 'comments: ' . implode( ',', $comments ) . "\n";
-        } elseif ( $tags || $meta || $comments || array( 'uncategorized' ) !== $terms ) {
+        } elseif ( $tags || $meta || $comments || array( 'Uncategorized' ) !== $terms ) {
           echo 'unexpected data on post ' . $wp->post_id . "\n";
         }
       }
@@ -1443,6 +1444,53 @@ Feature: Export content.
     Then save STDOUT 'Writing to file %s' as {EXPORT_FILE}
 
     When I run `wp eval-file check-export.php {EXPORT_FILE}`
+    Then STDOUT should be:
+      """
+      terms in database order: yes
+      tags: apple,beta,zoo
+      meta: my_meta_key=my_meta_value
+      comments: Approved comment [my_comment_meta_key=my_comment_meta_value]
+      found: 1
+      """
+
+    # Duplicate IDs in --post__in leave gaps in the keys of the list of post IDs.
+    When I run `wp post list --post_type=post --orderby=ID --order=ASC --format=ids`
+    Then save STDOUT as {POST_IDS}
+
+    When I run `wp eval 'echo implode( ",", array_merge( ...array_map( function ( $id ) { return array( $id, $id ); }, explode( " ", "{POST_IDS}" ) ) ) );'`
+    Then save STDOUT as {DUPLICATED_POST_IDS}
+
+    Given a wp-content/mu-plugins/count-batches.php file:
+      """
+      <?php
+      // Count the queries that load the post meta of a batch of posts.
+      $GLOBALS['batch_loads'] = 0;
+      add_filter(
+        'query',
+        function ( $query ) {
+          if ( false !== strpos( $query, 'postmeta WHERE post_id IN (' ) ) {
+            ++$GLOBALS['batch_loads'];
+          }
+          return $query;
+        }
+      );
+      register_shutdown_function(
+        function () {
+          if ( $GLOBALS['batch_loads'] ) {
+            file_put_contents( ABSPATH . 'batch-loads.txt', $GLOBALS['batch_loads'] );
+          }
+        }
+      );
+      """
+
+    When I run `wp export --post__in={DUPLICATED_POST_IDS} --filename_format=duplicated.xml`
+    Then save STDOUT 'Writing to file %s' as {DUPLICATED_EXPORT_FILE}
+    And the batch-loads.txt file should be:
+      """
+      2
+      """
+
+    When I run `wp eval-file check-export.php {DUPLICATED_EXPORT_FILE}`
     Then STDOUT should be:
       """
       terms in database order: yes
