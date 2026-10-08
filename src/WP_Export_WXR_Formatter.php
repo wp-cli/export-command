@@ -288,7 +288,10 @@ COMMENT;
 
 	protected function comment_meta( $comment ) {
 		global $wpdb;
-		$metas = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->commentmeta WHERE comment_id = %d", $comment->comment_ID ) );
+		// The export query already loads the comment meta, see WP_Export_Query::exportify_post().
+		$metas = isset( $comment->meta ) && is_array( $comment->meta )
+			? $comment->meta
+			: $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->commentmeta WHERE comment_id = %d", $comment->comment_ID ) );
 		if ( ! $metas ) {
 			return new Oxymel();
 		}
