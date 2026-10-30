@@ -1166,8 +1166,10 @@ Feature: Export content.
   Scenario: Export posts should not include oembed_cache posts user information
     Given a WP install
     And I run `wp plugin install wordpress-importer --activate`
-    And I run `wp user create user user@user.com --role=editor --display_name="Test User"`
-    And I run `wp user create oembed_cache_user oembed_cache@user.com --role=editor --display_name="Oembed User"`
+    And these setup commands:
+      | command                                                                                           |
+      | wp user create user user@user.com --role=editor --display_name="Test User"                        |
+      | wp user create oembed_cache_user oembed_cache@user.com --role=editor --display_name="Oembed User" |
     And I run `wp post generate --post_type=post --count=10 --post_author=user`
     And I run `wp post generate --post_type=oembed_cache --count=1 --post_author=oembed_cache_user`
 
@@ -1197,12 +1199,14 @@ Feature: Export content.
   @require-wp-5.2
   Scenario: Allow export to proceed when orphaned terms are found
     Given a WP install
-    And I run `wp term create category orphan --parent=1`
-    And I run `wp term create category parent`
-    And I run `wp term create category child --parent=3`
-    And I run `wp term create post_tag atag`
-    And I run `wp term create post_tag btag`
-    And I run `wp term create post_tag ctag`
+    And these setup commands:
+      | command                                   |
+      | wp term create category orphan --parent=1 |
+      | wp term create category parent            |
+      | wp term create category child --parent=3  |
+      | wp term create post_tag atag              |
+      | wp term create post_tag btag              |
+      | wp term create post_tag ctag              |
     And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
 
     When I run `wp export --allow_orphan_terms`
