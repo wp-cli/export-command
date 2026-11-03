@@ -34,6 +34,20 @@ class WP_Export_Query {
 
 	public $missing_parents = false;
 
+	/**
+	 * Terms, meta and comments of the posts in the current batch, keyed by post ID.
+	 *
+	 * @var array<int, array{terms: array<\WP_Term>, meta: array<\stdClass>, comments: array<\stdClass>}>
+	 */
+	private $batch_data = [];
+
+	/**
+	 * Positions of the post IDs in $post_ids, to find the batch a post belongs to.
+	 *
+	 * @var array<int, int>|null
+	 */
+	private $post_id_positions;
+
 	public function __construct( $filters = [] ) {
 		$this->filters = wp_parse_args( $filters, self::$defaults );
 
@@ -156,9 +170,21 @@ class WP_Export_Query {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$post->post_excerpt = apply_filters( 'the_excerpt_export', $post->post_excerpt );
 		$post->is_sticky    = is_sticky( $post->ID ) ? 1 : 0;
-		$post->terms        = self::get_terms_for_post( $post );
-		$post->meta         = self::get_meta_for_post( $post );
-		$post->comments     = $this->get_comments_for_post( $post );
+
+		if ( ! isset( $this->batch_data[ $post->ID ] ) ) {
+			$this->load_batch_data( $post->ID );
+		}
+
+		if ( isset( $this->batch_data[ $post->ID ] ) ) {
+			$post->terms    = $this->batch_data[ $post->ID ]['terms'];
+			$post->meta     = self::filter_meta_for_export( $this->batch_data[ $post->ID ]['meta'] );
+			$post->comments = $this->batch_data[ $post->ID ]['comments'];
+			unset( $this->batch_data[ $post->ID ] );
+		} else {
+			$post->terms    = self::get_terms_for_post( $post );
+			$post->meta     = self::get_meta_for_post( $post );
+			$post->comments = $this->get_comments_for_post( $post );
+		}
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Revert back to original.
 		$GLOBALS['post'] = $previous_global_post;
 		return $post;
@@ -413,6 +439,138 @@ class WP_Export_Query {
 		return $terms;
 	}
 
+	/**
+	 * Load the terms, meta and comments of the batch of posts starting with the given one.
+	 *
+	 * Querying them for a whole batch at once avoids several queries per exported post.
+	 * The data is the same as what get_terms_for_post(), get_meta_for_post() and
+	 * get_comments_for_post() return for each post, except that the meta is not filtered yet.
+	 *
+	 * @param int $post_id ID of the first post of the batch.
+	 */
+	private function load_batch_data( $post_id ) {
+		global $wpdb;
+
+		if ( null === $this->post_id_positions ) {
+			$this->post_id_positions = array_flip( array_map( 'intval', array_values( $this->post_ids ) ) );
+		}
+
+		$this->batch_data = [];
+		if ( ! isset( $this->post_id_positions[ $post_id ] ) ) {
+			return;
+		}
+
+		// Load the same chunk of posts that the posts iterator queries, which returns them in no particular order.
+		$start    = intdiv( $this->post_id_positions[ $post_id ], self::QUERY_CHUNK ) * self::QUERY_CHUNK;
+		$post_ids = array_map( 'intval', array_slice( $this->post_ids, $start, self::QUERY_CHUNK ) );
+		if ( ! $post_ids ) {
+			return;
+		}
+		$in_ids = implode( ',', $post_ids );
+
+		$terms_by_post    = array_fill_keys( $post_ids, [] );
+		$meta_by_post     = array_fill_keys( $post_ids, [] );
+		$comments_by_post = array_fill_keys( $post_ids, [] );
+
+		// Terms, queried per post type as the taxonomies depend on it.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only
+		$post_types  = $wpdb->get_results( "SELECT ID, post_type FROM $wpdb->posts WHERE ID IN ($in_ids)" );
+		$ids_by_type = [];
+		foreach ( $post_types as $row ) {
+			$ids_by_type[ $row->post_type ][] = (int) $row->ID;
+		}
+		foreach ( $ids_by_type as $post_type => $ids ) {
+			$taxonomies = get_object_taxonomies( $post_type );
+			if ( empty( $taxonomies ) ) {
+				continue;
+			}
+			$terms = wp_get_object_terms( $ids, $taxonomies, [ 'fields' => 'all_with_object_id' ] );
+			if ( is_wp_error( $terms ) ) {
+				continue;
+			}
+			foreach ( $terms as $term ) {
+				if ( ! $term instanceof \WP_Term ) {
+					continue;
+				}
+				// Set by wp_get_object_terms() for 'all_with_object_id'.
+				$object_id = (int) $term->object_id; // @phpstan-ignore property.notFound
+				if ( isset( $terms_by_post[ $object_id ] ) ) {
+					$terms_by_post[ $object_id ][] = $term;
+				}
+			}
+		}
+
+		// The terms are ordered by name in the database's collation. Order terms with the same name,
+		// e.g. a category and a tag, by their term_taxonomy_id like the query for a single post returns them.
+		foreach ( $terms_by_post as &$terms ) {
+			$terms = self::order_terms_with_same_name( $terms );
+		}
+		unset( $terms );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only
+		$meta_from_db = $wpdb->get_results( "SELECT * FROM $wpdb->postmeta WHERE post_id IN ($in_ids) ORDER BY post_id, meta_id" );
+		// The meta is filtered in exportify_post(), while the post it belongs to is the global post.
+		foreach ( $meta_from_db as $meta ) {
+			$meta_by_post[ (int) $meta->post_id ][] = $meta;
+		}
+
+		if ( ! isset( $this->filters['skip_comments'] ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only
+			$comments = $wpdb->get_results( "SELECT * FROM $wpdb->comments WHERE comment_post_ID IN ($in_ids) AND comment_approved <> 'spam' ORDER BY comment_post_ID, comment_ID" );
+			if ( ! empty( $comments ) ) {
+				$comment_meta = [];
+				$comment_ids  = implode( ',', array_map( 'intval', wp_list_pluck( $comments, 'comment_ID' ) ) );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only
+				foreach ( $wpdb->get_results( "SELECT * FROM $wpdb->commentmeta WHERE comment_id IN ($comment_ids) ORDER BY comment_id, meta_id" ) as $meta ) {
+					$comment_meta[ (int) $meta->comment_id ][] = $meta;
+				}
+
+				foreach ( $comments as $comment ) {
+					$comment->meta = isset( $comment_meta[ (int) $comment->comment_ID ] ) ? $comment_meta[ (int) $comment->comment_ID ] : [];
+					$comments_by_post[ (int) $comment->comment_post_ID ][] = $comment;
+				}
+			}
+		}
+
+		foreach ( $post_ids as $id ) {
+			$this->batch_data[ $id ] = [
+				'terms'    => $terms_by_post[ $id ],
+				'meta'     => $meta_by_post[ $id ],
+				'comments' => $comments_by_post[ $id ],
+			];
+		}
+	}
+
+	/**
+	 * Order runs of terms with the same name by their term_taxonomy_id, keeping the order of the runs.
+	 *
+	 * @param array<\WP_Term> $terms Terms ordered by name.
+	 * @return array<\WP_Term>
+	 */
+	private static function order_terms_with_same_name( $terms ) {
+		$ordered = [];
+		$count   = count( $terms );
+		$i       = 0;
+		while ( $i < $count ) {
+			$run = [ $terms[ $i ] ];
+			++$i;
+			while ( $i < $count && $terms[ $i ]->name === $run[0]->name ) {
+				$run[] = $terms[ $i ];
+				++$i;
+			}
+			if ( count( $run ) > 1 ) {
+				usort(
+					$run,
+					static function ( $a, $b ) {
+						return $a->term_taxonomy_id <=> $b->term_taxonomy_id;
+					}
+				);
+			}
+			array_push( $ordered, ...$run );
+		}
+		return $ordered;
+	}
+
 	private static function get_terms_for_post( $post ) {
 		$taxonomies = get_object_taxonomies( $post->post_type );
 		if ( empty( $taxonomies ) ) {
@@ -425,6 +583,20 @@ class WP_Export_Query {
 		global $wpdb;
 		$meta_for_export = [];
 		$meta_from_db    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE post_id = %d", $post->ID ) );
+		return self::filter_meta_for_export( $meta_from_db );
+	}
+
+	/**
+	 * Remove the meta that should not be exported.
+	 *
+	 * Called while the post the meta belongs to is the global post, as callbacks
+	 * of the `wxr_export_skip_postmeta` filter may rely on it.
+	 *
+	 * @param array<\stdClass> $meta_from_db Meta rows of a post.
+	 * @return array<\stdClass>
+	 */
+	private static function filter_meta_for_export( $meta_from_db ) {
+		$meta_for_export = [];
 		foreach ( $meta_from_db as $meta ) {
 			if ( '_edit_lock' === $meta->meta_key ) {
 				continue;
