@@ -1536,3 +1536,48 @@ Feature: Export content.
       comments: Approved comment [my_comment_meta_key=my_comment_meta_value]
       found: 1
       """
+
+  Scenario: Export the terms of taxonomies registered with arguments for querying terms
+    Given a WP install
+    And a wp-content/mu-plugins/taxonomies.php file:
+      """
+      <?php
+      // These arguments override the ones passed to wp_get_object_terms().
+      add_action(
+        'init',
+        function () {
+          register_taxonomy( 'limited', 'post', array( 'args' => array( 'number' => 1 ) ) );
+          register_taxonomy( 'plain', 'post', array( 'args' => array( 'fields' => 'all' ) ) );
+        }
+      );
+      """
+    And I run `wp term create limited Alpha`
+    And I run `wp term create limited Beta`
+    And I run `wp term create plain Gamma`
+    And I run `wp term create plain Delta`
+    And I run `wp post create --post_title='First post' --post_status=publish --porcelain`
+    And save STDOUT as {FIRST_POST_ID}
+    And I run `wp post term add {FIRST_POST_ID} limited alpha`
+    And I run `wp post term add {FIRST_POST_ID} plain gamma`
+    And I run `wp post create --post_title='Second post' --post_status=publish --porcelain`
+    And save STDOUT as {SECOND_POST_ID}
+    And I run `wp post term add {SECOND_POST_ID} limited beta`
+    And I run `wp post term add {SECOND_POST_ID} plain delta`
+
+    When I run `wp export --post_type=post --stdout`
+    Then STDOUT should contain:
+      """
+      <category domain="limited" nicename="alpha"><![CDATA[Alpha]]></category>
+      """
+    And STDOUT should contain:
+      """
+      <category domain="limited" nicename="beta"><![CDATA[Beta]]></category>
+      """
+    And STDOUT should contain:
+      """
+      <category domain="plain" nicename="gamma"><![CDATA[Gamma]]></category>
+      """
+    And STDOUT should contain:
+      """
+      <category domain="plain" nicename="delta"><![CDATA[Delta]]></category>
+      """

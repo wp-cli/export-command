@@ -479,9 +479,21 @@ class WP_Export_Query {
 		foreach ( $post_types as $row ) {
 			$ids_by_type[ $row->post_type ][] = (int) $row->ID;
 		}
+		$queried_per_post = [];
 		foreach ( $ids_by_type as $post_type => $ids ) {
 			$taxonomies = get_object_taxonomies( $post_type );
 			if ( empty( $taxonomies ) ) {
+				continue;
+			}
+			// The arguments a taxonomy is registered with override the ones passed to
+			// wp_get_object_terms(). Some only work for a single post, like `number`, which then
+			// limits the terms of the whole batch, or `fields`, which can drop the object ID.
+			if ( self::taxonomies_have_query_args( $taxonomies ) ) {
+				foreach ( $ids as $id ) {
+					$post_terms              = wp_get_object_terms( $id, $taxonomies );
+					$terms_by_post[ $id ]    = is_wp_error( $post_terms ) ? [] : $post_terms;
+					$queried_per_post[ $id ] = true;
+				}
 				continue;
 			}
 			$terms = wp_get_object_terms( $ids, $taxonomies, [ 'fields' => 'all_with_object_id' ] );
@@ -502,8 +514,10 @@ class WP_Export_Query {
 
 		// The terms are ordered by name in the database's collation. Order terms with the same name,
 		// e.g. a category and a tag, by their term_taxonomy_id like the query for a single post returns them.
-		foreach ( $terms_by_post as &$terms ) {
-			$terms = self::order_terms_with_same_name( $terms );
+		foreach ( $terms_by_post as $id => &$terms ) {
+			if ( ! isset( $queried_per_post[ $id ] ) ) {
+				$terms = self::order_terms_with_same_name( $terms );
+			}
 		}
 		unset( $terms );
 
@@ -539,6 +553,23 @@ class WP_Export_Query {
 				'comments' => $comments_by_post[ $id ],
 			];
 		}
+	}
+
+	/**
+	 * Check whether any of the given taxonomies is registered with arguments for querying its terms.
+	 *
+	 * @param array<string> $taxonomies Taxonomy names.
+	 * @return bool
+	 */
+	private static function taxonomies_have_query_args( $taxonomies ) {
+		foreach ( $taxonomies as $taxonomy ) {
+			$taxonomy_object = get_taxonomy( $taxonomy );
+			if ( $taxonomy_object && ! empty( $taxonomy_object->args ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
