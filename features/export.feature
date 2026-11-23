@@ -314,7 +314,10 @@ Feature: Export content.
   Scenario: Export posts from a given category
     Given a WP install
     And I run `wp site empty --yes`
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
 
     When I run `wp term create category Apple --porcelain`
     Then STDOUT should be a number
@@ -396,7 +399,10 @@ Feature: Export content.
   Scenario: Export posts from a given author
     Given a WP install
     And I run `wp site empty --yes`
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
 
     When I run `wp user create john john.doe@example.com --porcelain`
     Then STDOUT should be a number
@@ -478,7 +484,10 @@ Feature: Export content.
   @require-wp-5.2
   Scenario: Export posts should include user information
     Given a WP install
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
     And I run `wp user create user user@user.com --role=editor --display_name="Test User"`
     And I run `wp post generate --post_type=post --count=10 --post_author=user`
 
@@ -551,7 +560,10 @@ Feature: Export content.
     And I run `wp site empty --yes`
     And I run `wp post create --post_title="Some page" --post_type=page`
     And I run `wp post generate --post_type=post --count=10`
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
 
     When I run `wp post list --post_type=any --format=count`
     Then STDOUT should be:
@@ -670,7 +682,10 @@ Feature: Export content.
   Scenario: Export a site and skip the comments
     Given a WP install
     And I run `wp comment generate --post_id=1 --count=2`
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
 
     When I run `wp comment list --format=count`
     Then STDOUT should contain:
@@ -851,7 +866,10 @@ Feature: Export content.
   Scenario: Export a site to stdout
     Given a WP install
     And I run `wp comment generate --post_id=1 --count=1`
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
 
     When I run `wp export --stdout > export.xml`
     Then STDOUT should be empty
@@ -904,7 +922,10 @@ Feature: Export content.
   @require-wp-5.2
   Scenario: Export individual post with attachments
     Given a WP install
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
     And I run `wp site empty --yes`
 
     When I run `wp post generate --count=10`
@@ -1012,7 +1033,10 @@ Feature: Export content.
       }
       add_action( 'init', 'wp_cli_region_taxonomy' );
       """
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
     And I run `wp site empty --yes`
 
     When I run `wp term create category News --description="A news article" --porcelain`
@@ -1165,9 +1189,14 @@ Feature: Export content.
   @require-wp-5.2
   Scenario: Export posts should not include oembed_cache posts user information
     Given a WP install
-    And I run `wp plugin install wordpress-importer --activate`
-    And I run `wp user create user user@user.com --role=editor --display_name="Test User"`
-    And I run `wp user create oembed_cache_user oembed_cache@user.com --role=editor --display_name="Oembed User"`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
+    And these setup commands:
+      | command                                                                                           |
+      | wp user create user user@user.com --role=editor --display_name="Test User"                        |
+      | wp user create oembed_cache_user oembed_cache@user.com --role=editor --display_name="Oembed User" |
     And I run `wp post generate --post_type=post --count=10 --post_author=user`
     And I run `wp post generate --post_type=oembed_cache --count=1 --post_author=oembed_cache_user`
 
@@ -1197,12 +1226,14 @@ Feature: Export content.
   @require-wp-5.2
   Scenario: Allow export to proceed when orphaned terms are found
     Given a WP install
-    And I run `wp term create category orphan --parent=1`
-    And I run `wp term create category parent`
-    And I run `wp term create category child --parent=3`
-    And I run `wp term create post_tag atag`
-    And I run `wp term create post_tag btag`
-    And I run `wp term create post_tag ctag`
+    And these setup commands:
+      | command                                   |
+      | wp term create category orphan --parent=1 |
+      | wp term create category parent            |
+      | wp term create category child --parent=3  |
+      | wp term create post_tag atag              |
+      | wp term create post_tag btag              |
+      | wp term create post_tag ctag              |
     And I run `wp db query "DELETE FROM wp_terms WHERE term_id = 1"`
 
     When I run `wp export --allow_orphan_terms`
@@ -1217,7 +1248,10 @@ Feature: Export content.
       """
 
     When I run `wp site empty --yes`
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
     And I run `wp import {EXPORT_FILE} --authors=skip`
     Then STDOUT should contain:
       """
@@ -1292,7 +1326,10 @@ Feature: Export content.
   @require-wp-5.2
   Scenario: Export posts with future status
     Given a WP install
-    And I run `wp plugin install wordpress-importer --activate`
+    And these installed and active plugins:
+      """
+      wordpress-importer
+      """
     And I run `wp site empty --yes`
 
     When I run `wp post create --post_title='Future Post 1' --post_status=future --post_date='2050-01-01 12:00:00' --porcelain`
